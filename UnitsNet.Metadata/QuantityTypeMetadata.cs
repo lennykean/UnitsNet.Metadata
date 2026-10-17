@@ -38,7 +38,9 @@ public sealed class QuantityTypeMetadata : QuantityTypeMetadataBase
     /// <param name="culture">The culture of the unit abbreviations</param>
     public static QuantityTypeMetadata FromQuantityInfo(QuantityInfo quantityInfo, CultureInfo? culture = null)
     {
-        return EphemeralValueCache<Type, QuantityTypeMetadata>.GlobalInstance.GetOrAdd(quantityInfo.ValueType, _ =>
+        culture ??= CultureInfo.CurrentCulture;
+        var cache = EphemeralValueCache<(Type, CultureInfo), QuantityTypeMetadata>.GlobalInstance;
+        return cache.GetOrAdd((quantityInfo.ValueType, culture), _ =>
         {
             var name = quantityInfo.Name;
             var displayName = GetDisplayName(quantityInfo);

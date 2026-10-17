@@ -45,10 +45,10 @@ public interface IMetadataProvider<TMetadataAttribue, TMetadata>
     /// <param name="culture">The culture of the unit abbreviations</param>
     public virtual IEnumerable<TMetadata> GetMetadata(Type type, CultureInfo? culture = null)
     {
-        var cache =
-            EphemeralValueCache<(IMetadataProvider<TMetadataAttribue, TMetadata>, Type type), IEnumerable<TMetadata>>
-                .GlobalInstance;
-        return cache.GetOrAdd((this, type), key =>
+        var cache = EphemeralValueCache<
+            (IMetadataProvider<TMetadataAttribue, TMetadata>, Type type, CultureInfo culture, bool useDefaultCulture),
+            IEnumerable<TMetadata>>.GlobalInstance;
+        return cache.GetOrAdd((this, type, culture ?? CultureInfo.CurrentCulture, culture is null), key =>
         {
             IEnumerable<TMetadata> Get(Type type) => (
                 from property in type.IsInterface
@@ -322,7 +322,7 @@ public interface IMetadataProvider<TMetadataAttribue, TMetadata>
 
         metadata.Validate();
 
-        var (propertyMetadata, conversionMetadata) = property.GetConversionMetadatas(quantity.Unit, this);
+        var (propertyMetadata, conversionMetadata) = property.GetConversionMetadatas(quantity.Unit, this, culture);
         if (!conversionMetadata.TryConvertQuantity(quantity.Value, propertyMetadata, out var convertedQuantity))
         {
             throw new InvalidOperationException(
@@ -330,7 +330,7 @@ public interface IMetadataProvider<TMetadataAttribue, TMetadata>
                 $"to {propertyMetadata.QuantityType.Name}.");
         }
 
-        property.SetMethod.Invoke(obj, new[] { Convert.ChangeType(convertedQuantity.Value, property.PropertyType) });
+        property.SetMethod.Invoke(obj, new[] { convertedQuantity.Value.ToNumericValue(property.PropertyType) });
 
         return convertedQuantity;
     }

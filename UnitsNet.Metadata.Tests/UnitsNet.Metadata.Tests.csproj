@@ -5,6 +5,7 @@
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <NoWarn>$(NoWarn);CS0618</NoWarn>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>

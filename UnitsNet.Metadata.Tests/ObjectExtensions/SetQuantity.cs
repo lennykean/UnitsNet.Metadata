@@ -24,25 +24,15 @@ public class SetQuantity
         Assert.Multiple(() =>
         {
             Assert.That(obj, Has.Property(nameof(Box.Width)).EqualTo(1));
-            Assert.That(width, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(1).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(LengthUnit.Meter));
+            QuantityAssert.HasValueAndUnit(width, 1, LengthUnit.Meter);
             Assert.That(obj, Has.Property(nameof(Box.Height)).EqualTo(2));
-            Assert.That(height, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(2).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(LengthUnit.Meter));
+            QuantityAssert.HasValueAndUnit(height, 2, LengthUnit.Meter);
             Assert.That(obj, Has.Property(nameof(Box.Depth)).EqualTo(3));
-            Assert.That(depth, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(3).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(LengthUnit.Meter));
+            QuantityAssert.HasValueAndUnit(depth, 3, LengthUnit.Meter);
             Assert.That(obj, Has.Property(nameof(Box.Weight)).EqualTo(4));
-            Assert.That(weight, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(4).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(MassUnit.Kilogram));
+            QuantityAssert.HasValueAndUnit(weight, 4, MassUnit.Kilogram);
             Assert.That(obj, Has.Property(nameof(Box.Items)).EqualTo(5));
-            Assert.That(items, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(5).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(ScalarUnit.Amount));
+            QuantityAssert.HasValueAndUnit(items, 5, ScalarUnit.Amount);
         });
     }
 
@@ -56,12 +46,8 @@ public class SetQuantity
 
         Assert.Multiple(() =>
         {
-            Assert.That(capacity, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(1000).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(InformationUnit.Gigabyte));
-            Assert.That(freespace, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(500).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(InformationUnit.Gigabyte));
+            QuantityAssert.HasValueAndUnit(capacity, 1000, InformationUnit.Gigabyte);
+            QuantityAssert.HasValueAndUnit(freespace, 500, InformationUnit.Gigabyte);
         });
     }
 
@@ -116,9 +102,7 @@ public class SetQuantity
         Assert.Multiple(() =>
         {
             Assert.That(obj, Has.Property(nameof(Employee.Coolness)).EqualTo(40));
-            Assert.That(coolness, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(40).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(CoolnessUnit.MegaFonzie));
+            QuantityAssert.HasValueAndUnit(coolness, 40, CoolnessUnit.MegaFonzie);
         });
     }
 
@@ -148,17 +132,11 @@ public class SetQuantity
         Assert.Multiple(() =>
         {
             Assert.That(obj, Has.Property(nameof(DynoData.Horsepower)).EqualTo(536.41).Within(0.01));
-            Assert.That(horsepower, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(536.41).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(PowerUnit.MechanicalHorsepower));
+            QuantityAssert.HasValueAndUnit(horsepower, 536.41, PowerUnit.MechanicalHorsepower, 0.01);
             Assert.That(obj, Has.Property(nameof(DynoData.Torque)).EqualTo(221.27).Within(0.01));
-            Assert.That(torque, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(221.27).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(TorqueUnit.PoundForceFoot));
+            QuantityAssert.HasValueAndUnit(torque, 221.27, TorqueUnit.PoundForceFoot, 0.01);
             Assert.That(obj, Has.Property(nameof(DynoData.Rpm)).EqualTo(4774.65).Within(0.01));
-            Assert.That(rpm, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(4774.65).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(RotationalSpeedUnit.RevolutionPerMinute));
+            QuantityAssert.HasValueAndUnit(rpm, 4774.65, RotationalSpeedUnit.RevolutionPerMinute, 0.01);
         });
     }
 }

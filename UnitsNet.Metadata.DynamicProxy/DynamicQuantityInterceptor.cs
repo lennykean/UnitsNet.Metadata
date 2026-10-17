@@ -4,6 +4,7 @@ using System.Reflection;
 using Castle.DynamicProxy;
 
 using UnitsNet.Metadata.Annotations;
+using UnitsNet.Metadata.Reflection;
 
 namespace UnitsNet.Metadata.DynamicProxy;
 
@@ -30,8 +31,14 @@ internal sealed class DynamicQuantityInterceptor<TObject, TMetadataAttribute, TM
             return;
         }
 
+        var concreteMethod = invocation.GetConcreteMethodInvocationTarget();
+        if (concreteMethod is null)
+        {
+            return;
+        }
+
         var targetProperty = _methodPropertyMap.GetOrAdd(
-            invocation.GetConcreteMethodInvocationTarget(),
+            concreteMethod,
             targetMethod => targetMethod.ReflectedType.GetProperties()
                 .SingleOrDefault(p => p.GetMethod == targetMethod || p.SetMethod == targetMethod));
         if (targetProperty is null || !MetadataProvider.TryGetBaseMetadata(targetProperty, out var targetMetadata) ||
@@ -49,7 +56,7 @@ internal sealed class DynamicQuantityInterceptor<TObject, TMetadataAttribute, TM
             return;
         }
 
-        if (targetMetadata.Unit.UnitInfo.Value == metadata.Unit.UnitInfo.Value)
+        if (targetMetadata.Unit.UnitInfo.Value.Equals(metadata.Unit.UnitInfo.Value))
         {
             return;
         }
@@ -62,18 +69,23 @@ internal sealed class DynamicQuantityInterceptor<TObject, TMetadataAttribute, TM
                 value: invocation.Arguments[0]);
             targetProperty.SetValue(
                 invocation.InvocationTarget,
-                Convert.ChangeType(quantity.Value, property.PropertyType));
+                quantity.Value.ToNumericValue(property.PropertyType));
         }
         else
         {
             var quantity = ConvertQuantity(from: targetMetadata.Unit, to: metadata.Unit, value: invocation.ReturnValue);
-            invocation.ReturnValue = Convert.ChangeType(quantity.Value, property.PropertyType);
+            invocation.ReturnValue = quantity.Value.ToNumericValue(property.PropertyType);
         }
     }
 
-    private static IQuantity ConvertQuantity(UnitMetadata from, UnitMetadata to, object value)
+    private static IQuantity ConvertQuantity(UnitMetadata from, UnitMetadata to, object? value)
     {
-        if (!from.TryConvertQuantity(Convert.ToDouble(value), to, out var quantity))
+        if (value is null)
+        {
+            throw new InvalidOperationException("A quantity property must have a numeric value.");
+        }
+
+        if (!from.TryConvertQuantity(ReflectionExtensions.ToQuantityValue(value), to, out var quantity))
         {
             throw new InvalidOperationException(
                 $"Invalid unit conversion from {from.UnitInfo.Value} to {to.UnitInfo.Value}.");

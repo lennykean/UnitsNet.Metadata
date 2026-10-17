@@ -38,10 +38,15 @@ internal sealed class DynamicProxyMetadataProvider<TMetadataAttribute, TMetadata
 
         if (_dynamicMetadata.TryGetValue(property, out metadata) && metadata.Unit is not null)
         {
+            if (culture is not null)
+            {
+                metadata = metadata.WithCulture(culture);
+            }
+
             return true;
         }
 
-        if (_baseMetadataProvider.TryGetMetadata(property, out metadata) && metadata?.Unit is not null)
+        if (_baseMetadataProvider.TryGetMetadata(property, out metadata, culture) && metadata?.Unit is not null)
         {
             return true;
         }
@@ -58,7 +63,7 @@ internal sealed class DynamicProxyMetadataProvider<TMetadataAttribute, TMetadata
     {
         var (_, toMetadata) = property.GetConversionMetadatas(to: unit, this, culture);
 
-        if (!_baseMetadataProvider.TryGetMetadata(property, out var innerMetadata) || innerMetadata is null ||
+        if (!_baseMetadataProvider.TryGetMetadata(property, out var innerMetadata, culture) || innerMetadata is null ||
             innerMetadata.Unit is null)
         {
             throw new InvalidOperationException($"No metadata found for property {property}.");

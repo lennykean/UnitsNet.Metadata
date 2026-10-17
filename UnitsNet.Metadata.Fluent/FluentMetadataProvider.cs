@@ -25,7 +25,17 @@ internal sealed class FluentMetadataProvider<TObject, TMetadataAttribute, TMetad
             throw new ArgumentNullException(nameof(property));
         }
 
-        return _metadata.TryGetValue(property, out metadata);
+        if (!_metadata.TryGetValue(property, out metadata))
+        {
+            return false;
+        }
+
+        if (culture is not null)
+        {
+            metadata = metadata.WithCulture(culture);
+        }
+
+        return true;
     }
 
     public void ValidateMetadata(PropertyInfo property)

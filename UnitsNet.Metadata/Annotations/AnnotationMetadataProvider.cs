@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
@@ -15,8 +16,8 @@ internal sealed class AnnotationMetadataProvider<TMetadataAttribute, TMetadata>
     private static readonly Lazy<AnnotationMetadataProvider<TMetadataAttribute, TMetadata>> LazyInstance = new(
         () => new AnnotationMetadataProvider<TMetadataAttribute, TMetadata>());
 
-    private static readonly Lazy<EphemeralValueCache<PropertyInfo, TMetadata>> LazyPropertyMetadataCache = new(
-        () => new(new DeclaringTypePropertyComparer()));
+    private static readonly ConcurrentDictionary<CultureInfo, EphemeralValueCache<PropertyInfo, TMetadata>>
+        PropertyMetadataCaches = new();
 
     private AnnotationMetadataProvider()
     {
@@ -29,7 +30,9 @@ internal sealed class AnnotationMetadataProvider<TMetadataAttribute, TMetadata>
         [NotNullWhen(true)] out TMetadata? metadata,
         CultureInfo? culture = null)
     {
-        if (LazyPropertyMetadataCache.Value.TryGet(property, out metadata))
+        culture ??= CultureInfo.CurrentCulture;
+        var cache = PropertyMetadataCaches.GetOrAdd(culture, _ => new(new DeclaringTypePropertyComparer()));
+        if (cache.TryGet(property, out metadata))
         {
             return true;
         }
@@ -42,12 +45,13 @@ internal sealed class AnnotationMetadataProvider<TMetadataAttribute, TMetadata>
 
         metadataAttribute.Validate();
 
-        metadata = LazyPropertyMetadataCache.Value.GetOrAdd(property, p =>
+        metadata = cache.GetOrAdd(property, p =>
         {
             var allowedConversionAttributes = property.GetCustomAttributes<AllowUnitConversionAttribute>(inherit: true);
             return metadataAttribute.ToMetadata(
                 property,
-                metadataAttribute.BuildAllowedConversionsMetadata(allowedConversionAttributes, culture));
+                metadataAttribute.BuildAllowedConversionsMetadata(allowedConversionAttributes, culture),
+                culture: culture);
         });
         return true;
     }

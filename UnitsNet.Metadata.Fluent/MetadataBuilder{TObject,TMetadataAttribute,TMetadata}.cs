@@ -96,7 +96,8 @@ public class MetadataBuilder<TObject, TMetadataAttribute, TMetadata> : MetadataB
                 ? attributes
                 : Enumerable.Empty<AllowUnitConversionAttribute>();
 
-            var allowedConversions = metadataAttribute.BuildAllowedConversionsMetadata(allowedConversionAttributes);
+            var allowedConversions =
+                metadataAttribute.BuildAllowedConversionsMetadata(allowedConversionAttributes, culture);
 
             provider.AddMetadata(
                 property,

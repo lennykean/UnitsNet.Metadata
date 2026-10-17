@@ -47,7 +47,9 @@ public sealed class UnitMetadataBasic : UnitMetadataBase
         QuantityInfo quantityInfo,
         CultureInfo? culture = null)
     {
-        return EphemeralValueCache<Enum, UnitMetadataBasic?>.GlobalInstance.GetOrAdd(unitInfo.Value, _ =>
+        culture ??= CultureInfo.CurrentCulture;
+        var cache = EphemeralValueCache<(Enum, CultureInfo), UnitMetadataBasic?>.GlobalInstance;
+        return cache.GetOrAdd((unitInfo.Value, culture), _ =>
         {
             return QuantityTypeMetadataBasic.FromQuantityInfo(quantityInfo) switch
             {

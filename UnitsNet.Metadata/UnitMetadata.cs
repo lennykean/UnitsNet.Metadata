@@ -46,7 +46,9 @@ public sealed class UnitMetadata : UnitMetadataBase
     /// <param name="culture">The culture of the unit abbreviations</param>
     public static UnitMetadata FromUnitInfo(UnitInfo unitInfo, QuantityInfo quantityInfo, CultureInfo? culture = null)
     {
-        return EphemeralValueCache<Enum, UnitMetadata>.GlobalInstance.GetOrAdd(unitInfo.Value, _ =>
+        culture ??= CultureInfo.CurrentCulture;
+        var cache = EphemeralValueCache<(Enum, CultureInfo), UnitMetadata>.GlobalInstance;
+        return cache.GetOrAdd((unitInfo.Value, culture), _ =>
         {
             var quantityType = QuantityTypeMetadata.FromQuantityInfo(quantityInfo, culture);
             return new(
@@ -66,9 +68,18 @@ public sealed class UnitMetadata : UnitMetadataBase
     /// <param name="to">The unit to convert to</param>
     /// <param name="convertedQuantity">The converted quantity</param>
     public bool TryConvertQuantity(double value, UnitMetadata to, out IQuantity convertedQuantity)
+        => TryConvertQuantity((QuantityValue)value, to, out convertedQuantity);
+
+    /// <summary>
+    /// Tries to convert a value in this unit to another unit.
+    /// </summary>
+    /// <param name="value">The value in this unit</param>
+    /// <param name="to">The unit to convert to</param>
+    /// <param name="convertedQuantity">The converted quantity</param>
+    public bool TryConvertQuantity(QuantityValue value, UnitMetadata to, out IQuantity convertedQuantity)
     {
         convertedQuantity = value.AsQuantity(UnitInfo.Value, QuantityType.QuantityInfo.ValueType);
-        if (UnitInfo.Value == to.UnitInfo.Value)
+        if (UnitInfo.Value.Equals(to.UnitInfo.Value))
         {
             return true;
         }

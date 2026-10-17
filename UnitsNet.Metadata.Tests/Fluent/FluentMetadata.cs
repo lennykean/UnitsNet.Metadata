@@ -39,15 +39,11 @@ public class FluentMetadata
                 .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
                     .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicMeter));
 
-            Assert.That(metadataProvider.GetQuantity(obj, c => c.Radius), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(0.1).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(LengthUnit.Meter));
-            Assert.That(metadataProvider.GetQuantity(obj, "Height"), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(.5).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(LengthUnit.Meter));
-            Assert.That(metadataProvider.GetQuantity(obj, c => c.Volume), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(0.016).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(VolumeUnit.CubicMeter));
+            QuantityAssert.HasValueAndUnit(
+                metadataProvider.GetQuantity(obj, c => c.Radius), 0.1, LengthUnit.Meter, 0.01);
+            QuantityAssert.HasValueAndUnit(metadataProvider.GetQuantity(obj, "Height"), .5, LengthUnit.Meter, 0.01);
+            QuantityAssert.HasValueAndUnit(
+                metadataProvider.GetQuantity(obj, c => c.Volume), 0.016, VolumeUnit.CubicMeter, 0.01);
         });
     }
 
@@ -90,15 +86,11 @@ public class FluentMetadata
                     .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicMeter).And
                 .ItemAt(nameof(Cylinder.Radius)).Property(nameof(QuantityMetadata.Conversions)).Count.EqualTo(3));
 
-            Assert.That(metadataProvider.GetQuantity(obj, c => c.Radius), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(0.1).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(LengthUnit.Meter));
-            Assert.That(metadataProvider.GetQuantity(obj, "Height"), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(.5).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(LengthUnit.Meter));
-            Assert.That(metadataProvider.GetQuantity(obj, c => c.Volume), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(0.016).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(VolumeUnit.CubicMeter));
+            QuantityAssert.HasValueAndUnit(
+                metadataProvider.GetQuantity(obj, c => c.Radius), 0.1, LengthUnit.Meter, 0.01);
+            QuantityAssert.HasValueAndUnit(metadataProvider.GetQuantity(obj, "Height"), .5, LengthUnit.Meter, 0.01);
+            QuantityAssert.HasValueAndUnit(
+                metadataProvider.GetQuantity(obj, c => c.Volume), 0.016, VolumeUnit.CubicMeter, 0.01);
         });
     }
 
@@ -132,15 +124,9 @@ public class FluentMetadata
                 .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
                     .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicMillimeter));
 
-            Assert.That(obj.GetQuantity(t => t.MinorRadius), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(5).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(LengthUnit.Millimeter));
-            Assert.That(obj.GetQuantity("MajorRadius"), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(20).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(LengthUnit.Millimeter));
-            Assert.That(obj.GetQuantity(t => t.Volume), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(9869.60).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(VolumeUnit.CubicMillimeter));
+            QuantityAssert.HasValueAndUnit(obj.GetQuantity(t => t.MinorRadius), 5, LengthUnit.Millimeter, 0.01);
+            QuantityAssert.HasValueAndUnit(obj.GetQuantity("MajorRadius"), 20, LengthUnit.Millimeter, 0.01);
+            QuantityAssert.HasValueAndUnit(obj.GetQuantity(t => t.Volume), 9869.60, VolumeUnit.CubicMillimeter, 0.01);
         });
     }
 
@@ -168,9 +154,7 @@ public class FluentMetadata
                 .ItemAt(nameof(Chips.Size)).Property(nameof(DisplayMeasurementMetadata
                     .DisplayName)).EqualTo("Net Weight"));
 
-            Assert.That(metadataProvider.GetQuantity(obj, c => c.Size), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(14.5).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(MassUnit.Ounce));
+            QuantityAssert.HasValueAndUnit(metadataProvider.GetQuantity(obj, c => c.Size), 14.5, MassUnit.Ounce, 0.01);
         });
     }
 }

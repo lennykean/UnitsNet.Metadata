@@ -279,12 +279,10 @@ public class AsDynamicProxies
                 .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
                     .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(RotationalSpeedUnit.RevolutionPerMinute));
 
-            Assert.That(obj.ConvertQuantity(d => d.Horsepower, to: PowerUnit.Kilowatt), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(223.7).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(PowerUnit.Kilowatt));
-            Assert.That(obj.ConvertQuantity("Torque", to: TorqueUnit.NewtonMeter), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(271.16).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(TorqueUnit.NewtonMeter));
+            QuantityAssert.HasValueAndUnit(
+                obj.ConvertQuantity(d => d.Horsepower, to: PowerUnit.Kilowatt), 223.7, PowerUnit.Kilowatt, 0.01);
+            QuantityAssert.HasValueAndUnit(
+                obj.ConvertQuantity("Torque", to: TorqueUnit.NewtonMeter), 271.16, TorqueUnit.NewtonMeter, 0.01);
         });
     }
 
@@ -327,12 +325,10 @@ public class AsDynamicProxies
                 .ItemAt(nameof(DynoData.Rpm)).Property(nameof(DisplayMeasurementMetadata
                     .DisplayName)).EqualTo("Engine Speed"));
 
-            Assert.That(obj.ConvertQuantity(d => d.Horsepower, to: PowerUnit.Kilowatt), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(223.7).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(PowerUnit.Kilowatt));
-            Assert.That(obj.ConvertQuantity("Torque", to: TorqueUnit.NewtonMeter), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(271.16).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(TorqueUnit.NewtonMeter));
+            QuantityAssert.HasValueAndUnit(
+                obj.ConvertQuantity(d => d.Horsepower, to: PowerUnit.Kilowatt), 223.7, PowerUnit.Kilowatt, 0.01);
+            QuantityAssert.HasValueAndUnit(
+                obj.ConvertQuantity("Torque", to: TorqueUnit.NewtonMeter), 271.16, TorqueUnit.NewtonMeter, 0.01);
         });
     }
 }

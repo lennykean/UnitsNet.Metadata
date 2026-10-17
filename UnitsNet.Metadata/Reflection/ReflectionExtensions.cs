@@ -24,7 +24,7 @@ internal static class ReflectionExtensions
 
     public static void ValidateQuantityType(this Type type)
     {
-        if (!LazyQuantityValueCompatibleTypes.Value.Contains(type))
+        if (type != typeof(QuantityValue) && !LazyQuantityValueCompatibleTypes.Value.Contains(type))
         {
             throw new InvalidOperationException($"{type} is not compatible with {typeof(QuantityValue)}.");
         }
@@ -112,7 +112,7 @@ internal static class ReflectionExtensions
         return true;
     }
 
-    public static double GetQuantityValueFromProperty<TObject>(this TObject obj, PropertyInfo property)
+    public static QuantityValue GetQuantityValueFromProperty<TObject>(this TObject obj, PropertyInfo property)
     {
         var getter = EphemeralValueCache<(Type, Type, string), MethodInfo>.GlobalInstance.GetOrAdd((property
             .DeclaringType, property.PropertyType, property.Name), p =>
@@ -125,11 +125,30 @@ internal static class ReflectionExtensions
             return getter;
         });
         return getter is not null
-            ? Convert.ToDouble(getter.Invoke(obj, new object[] { }))
+            ? ToQuantityValue(getter.Invoke(obj, new object[] { })!)
             : default;
     }
 
-    public static IQuantity AsQuantity(this double value, Enum unit, Type quantityType)
+    public static QuantityValue ToQuantityValue(object value) => value switch
+    {
+        QuantityValue quantityValue => quantityValue,
+        decimal decimalValue => decimalValue,
+        long integerValue => (decimal)integerValue,
+        _ => Convert.ToDouble(value, CultureInfo.InvariantCulture),
+    };
+
+    public static object ToNumericValue(this QuantityValue value, Type type)
+    {
+        if (type == typeof(QuantityValue))
+        {
+            return value;
+        }
+
+        object number = value.IsDecimal ? (decimal)value : (double)value;
+        return Convert.ChangeType(number, type, CultureInfo.InvariantCulture);
+    }
+
+    public static IQuantity AsQuantity(this QuantityValue value, Enum unit, Type quantityType)
     {
         if (!unit.TryGetQuantityInfo(quantityType, out var quantityInfo))
         {
@@ -153,7 +172,7 @@ internal static class ReflectionExtensions
                 let parameters = c.GetParameters()
                 where parameters.Count() == 2
                 where
-                    parameters.Last().ParameterType == typeof(QuantityValue) ||
+                    parameters.First().ParameterType == typeof(QuantityValue) ||
                     LazyQuantityValueCompatibleTypes.Value.Contains(parameters.First().ParameterType)
                 where parameters.Last().ParameterType == quantityInfo!.UnitType
                 select c).SingleOrDefault();
@@ -165,7 +184,7 @@ internal static class ReflectionExtensions
                 : ctor;
         })!;
         return (IQuantity)quantityCtor.Invoke(
-            new object[] { Convert.ChangeType(value, quantityCtor.GetParameters().First().ParameterType), unit });
+            new object[] { value.ToNumericValue(quantityCtor.GetParameters().First().ParameterType), unit });
     }
 
     public static (UnitMetadata propertyMetadata, UnitMetadata conversionMetadata)

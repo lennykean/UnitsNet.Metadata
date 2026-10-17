@@ -46,9 +46,6 @@ public readonly struct Coolness : IQuantity
 
     public static QuantityInfo Info { get; }
 
-    [Obsolete("QuantityType will be removed in the future..")]
-    public readonly QuantityType Type => QuantityType.Undefined;
-
     public readonly BaseDimensions Dimensions => BaseDimensions;
 
     public readonly QuantityInfo QuantityInfo => Info;
@@ -57,13 +54,18 @@ public readonly struct Coolness : IQuantity
 
     public double Value { get; }
 
+    QuantityValue IQuantity.Value => Value;
+
+    public bool Equals(IQuantity? other, IQuantity tolerance)
+        => other is Coolness coolness && Math.Abs(Value - coolness.As(Unit)) <= tolerance.As(Unit);
+
     public readonly double As(Enum unit)
-        => UnitConverter.Default.GetConversionFunction<Coolness>(Unit, unit).Invoke(this).Value;
+        => (double)UnitConverter.Default.GetConversionFunction<Coolness>(Unit, unit).Invoke(this).Value;
 
     public readonly string ToString(IFormatProvider? provider)
     {
         var unitAbbriviations = UnitAbbreviationsCache.Default
-            .GetUnitAbbreviations(typeof(Coolness), Convert.ToInt32(Unit, CultureInfo.InvariantCulture), provider);
+            .GetUnitAbbreviations(typeof(CoolnessUnit), Convert.ToInt32(Unit, CultureInfo.InvariantCulture), provider);
 
         return $"{Value} {unitAbbriviations.FirstOrDefault()}";
     }
@@ -84,10 +86,6 @@ public readonly struct Coolness : IQuantity
     }
 
     double IQuantity.As(UnitSystem unitSystem) => throw new NotImplementedException();
-
-    string IQuantity.ToString(IFormatProvider? provider, int significantDigitsAfterRadix) => ToString(provider);
-
-    string IQuantity.ToString(IFormatProvider? provider, string format, params object[] args) => ToString(provider);
 
     string IFormattable.ToString(string? format, IFormatProvider? formatProvider) => ToString(formatProvider);
 

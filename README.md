@@ -32,6 +32,8 @@ Each UnitsNet major version has its own package version line:
 | 2.x | 5 | `main`, `unitsnet-v5` |
 | 3.x preview | 6 preview | `unitsnet-v6` |
 
+To upgrade from 1.x, update all UnitsNet.Metadata packages together and follow the UnitsNet [4.x to 5.x upgrade guide](https://github.com/angularsen/UnitsNet/wiki/Upgrading-from-4.x-to-5.x).
+
 ### Annotations
 
 Decorate class properties with their units using annotations.

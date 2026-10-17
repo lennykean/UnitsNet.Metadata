@@ -25,7 +25,8 @@ public class ConvertQuantity
             new ConvertQuantityTestData(2, 6.561, LengthUnit.Foot),
             new ConvertQuantityTestData(3, 3.28, LengthUnit.Yard),
             new ConvertQuantityTestData(4, 8.818, MassUnit.Pound),
-            new ConvertQuantityTestData(0, 366143.894, VolumeUnit.CubicInch)).SetName("{c} (to different unit system)"),
+            new ConvertQuantityTestData(0, Volume.FromCubicMeters(6).CubicInches, VolumeUnit.CubicInch))
+            .SetName("{c} (to different unit system)"),
         new TestCaseData(
             new ConvertQuantityTestData(1, 1, LengthUnit.Meter),
             new ConvertQuantityTestData(2, 2, LengthUnit.Meter),
@@ -58,21 +59,11 @@ public class ConvertQuantity
 
         Assert.Multiple(() =>
         {
-            Assert.That(widthQuantity, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(width.Converted).Within(0.001).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(width.Unit));
-            Assert.That(heightQuantity, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(height.Converted).Within(0.001).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(height.Unit));
-            Assert.That(depthQuantity, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(depth.Converted).Within(0.001).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(depth.Unit));
-            Assert.That(volumeQuantity, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(volume.Converted).Within(0.001).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(volume.Unit));
-            Assert.That(weightQuantity, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(weight.Converted).Within(0.001).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(weight.Unit));
+            QuantityAssert.HasValueAndUnit(widthQuantity, width.Converted, width.Unit, 0.001);
+            QuantityAssert.HasValueAndUnit(heightQuantity, height.Converted, height.Unit, 0.001);
+            QuantityAssert.HasValueAndUnit(depthQuantity, depth.Converted, depth.Unit, 0.001);
+            QuantityAssert.HasValueAndUnit(volumeQuantity, volume.Converted, volume.Unit, 0.001);
+            QuantityAssert.HasValueAndUnit(weightQuantity, weight.Converted, weight.Unit, 0.001);
         });
     }
 
@@ -89,12 +80,8 @@ public class ConvertQuantity
 
         Assert.Multiple(() =>
         {
-            Assert.That(capacityKb, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(128_000_000).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(InformationUnit.Kilobyte));
-            Assert.That(freespaceKb, Has
-                .Property(nameof(IQuantity.Value)).EqualTo(64_000_000).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(InformationUnit.Kilobyte));
+            QuantityAssert.HasValueAndUnit(capacityKb, 128_000_000, InformationUnit.Kilobyte);
+            QuantityAssert.HasValueAndUnit(freespaceKb, 64_000_000, InformationUnit.Kilobyte);
         });
     }
 
@@ -177,12 +164,10 @@ public class ConvertQuantity
 
         Assert.Multiple(() =>
         {
-            Assert.That(obj.ConvertQuantity(e => e.Coolness, to: CoolnessUnit.Fonzie), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(40_000_000).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(CoolnessUnit.Fonzie));
-            Assert.That(obj.ConvertQuantity("Coolness", to: CoolnessUnit.Fonzie), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(40_000_000).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(CoolnessUnit.Fonzie));
+            QuantityAssert.HasValueAndUnit(
+                obj.ConvertQuantity(e => e.Coolness, to: CoolnessUnit.Fonzie), 40_000_000, CoolnessUnit.Fonzie);
+            QuantityAssert.HasValueAndUnit(
+                obj.ConvertQuantity("Coolness", to: CoolnessUnit.Fonzie), 40_000_000, CoolnessUnit.Fonzie);
         });
     }
 
@@ -215,12 +200,10 @@ public class ConvertQuantity
 
         Assert.Multiple(() =>
         {
-            Assert.That(obj.ConvertQuantity(d => d.Horsepower, to: PowerUnit.Kilowatt), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(223.7).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(PowerUnit.Kilowatt));
-            Assert.That(obj.ConvertQuantity("Torque", to: TorqueUnit.NewtonMeter), Has
-                .Property(nameof(IQuantity.Value)).EqualTo(271.16).Within(0.01).And
-                .Property(nameof(IQuantity.Unit)).EqualTo(TorqueUnit.NewtonMeter));
+            QuantityAssert.HasValueAndUnit(
+                obj.ConvertQuantity(d => d.Horsepower, to: PowerUnit.Kilowatt), 223.7, PowerUnit.Kilowatt, 0.01);
+            QuantityAssert.HasValueAndUnit(
+                obj.ConvertQuantity("Torque", to: TorqueUnit.NewtonMeter), 271.16, TorqueUnit.NewtonMeter, 0.01);
         });
     }
 
