@@ -4,6 +4,6 @@ namespace UnitsNet.Metadata.Tests.TestData;
 
 public class Rubbish
 {
-    [Quantity(CoolnessUnit.Fonzie)]
+    [Quantity(UnregisteredUnit.Fonzie)]
     public virtual double Coolness { get; set; }
 }

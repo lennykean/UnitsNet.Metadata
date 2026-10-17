@@ -59,7 +59,7 @@ public sealed class UnitMetadataBasic : UnitMetadataBase
                         unitInfo.Name,
                         Convert.ToInt32(unitInfo.Value),
                         GetDisplayName(unitInfo),
-                        GetAbbriviation(unitInfo, quantityInfo, culture),
+                        GetAbbriviation(unitInfo, culture),
                         quantityType),
                 _
                     => null

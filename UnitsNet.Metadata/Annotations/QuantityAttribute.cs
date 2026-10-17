@@ -58,7 +58,7 @@ public class QuantityAttribute : Attribute, IMetadataAttribute<QuantityAttribute
                 return default;
             }
 
-            return quantityInfo?.ValueType;
+            return quantityInfo?.QuantityType;
         });
     }
 
@@ -184,7 +184,7 @@ public class QuantityAttribute : Attribute, IMetadataAttribute<QuantityAttribute
         }
 
         if (quantityInfo is null ||
-            unitInfo is null && Unit?.TryGetUnitInfo(quantityInfo.ValueType, out unitInfo) is not true)
+            unitInfo is null && Unit?.TryGetUnitInfo(quantityInfo.QuantityType, out unitInfo) is not true)
         {
             return default;
         }

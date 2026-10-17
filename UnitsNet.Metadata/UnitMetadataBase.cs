@@ -57,12 +57,9 @@ public abstract class UnitMetadataBase
         return unitInfo.PluralName.Humanize(LetterCasing.LowerCase);
     }
 
-    private protected static string GetAbbriviation(UnitInfo unitInfo, QuantityInfo quantityInfo, CultureInfo? culture)
+    private protected static string GetAbbriviation(UnitInfo unitInfo, CultureInfo? culture)
     {
-        return UnitAbbreviationsCache.Default.GetUnitAbbreviations(
-            quantityInfo.UnitType,
-            Convert.ToInt32(unitInfo.Value),
-            culture).FirstOrDefault() ?? "";
+        return UnitAbbreviationsCache.Default.GetUnitAbbreviations(unitInfo, culture).FirstOrDefault() ?? "";
     }
 
     /// <inheritdoc />

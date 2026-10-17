@@ -114,9 +114,9 @@ public class SetQuantity
         Assert.Multiple(() =>
         {
             Assert.That(() => obj.SetQuantity(r => r.Coolness, new Coolness(40000000, CoolnessUnit.Fonzie)),
-                Throws.ArgumentException.With.Message.Match("(.*) is not a known unit type"));
+                Throws.ArgumentException.With.Message.Match("(.*) is not a known unit value"));
             Assert.That(() => obj.SetQuantity("Coolness", new Coolness(40000000, CoolnessUnit.Fonzie)),
-                Throws.ArgumentException.With.Message.Match("(.*) is not a known unit type"));
+                Throws.ArgumentException.With.Message.Match("(.*) is not a known unit value"));
         });
     }
 

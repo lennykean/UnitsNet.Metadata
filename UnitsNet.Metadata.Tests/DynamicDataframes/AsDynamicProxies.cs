@@ -176,7 +176,7 @@ public class AsDynamicProxies
 
             Assert.That(proxy, Has.Property(nameof(TransmitterData.Power)).EqualTo(2000).Within(0.01));
             Assert.That(proxy, Has.Property(nameof(TransmitterData.Frequency)).EqualTo(3).Within(0.01));
-            Assert.That(proxy, Has.Property(nameof(TransmitterData.Temperature)).EqualTo(-173.14).Within(0.01));
+            Assert.That(proxy, Has.Property(nameof(TransmitterData.Temperature)).EqualTo(-173.15).Within(0.01));
         });
     }
 

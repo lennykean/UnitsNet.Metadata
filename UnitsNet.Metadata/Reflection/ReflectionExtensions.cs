@@ -19,8 +19,9 @@ internal static class ReflectionExtensions
         where m.Name == "op_Implicit"
         select m.GetParameters().First().ParameterType).ToArray());
 
-    private static readonly Lazy<ConcurrentDictionary<Type, ConstructorInfo>> LazyQuantityConstructorTable = new(
-        () => new());
+    private static readonly ConcurrentDictionary<Type, Func<object, QuantityValue>> NumericReaders = new();
+
+    private static readonly ConcurrentDictionary<Type, Func<QuantityValue, object>> NumericWriters = new();
 
     public static void ValidateQuantityType(this Type type)
     {
@@ -129,13 +130,21 @@ internal static class ReflectionExtensions
             : default;
     }
 
-    public static QuantityValue ToQuantityValue(object value) => value switch
+    public static QuantityValue ToQuantityValue(object value)
     {
-        QuantityValue quantityValue => quantityValue,
-        decimal decimalValue => decimalValue,
-        long integerValue => (decimal)integerValue,
-        _ => Convert.ToDouble(value, CultureInfo.InvariantCulture),
-    };
+        if (value is QuantityValue quantityValue)
+        {
+            return quantityValue;
+        }
+
+        return NumericReaders.GetOrAdd(value.GetType(), type =>
+        {
+            type.ValidateQuantityType();
+            var parameter = Expression.Parameter(typeof(object));
+            var conversion = Expression.Convert(Expression.Convert(parameter, type), typeof(QuantityValue));
+            return Expression.Lambda<Func<object, QuantityValue>>(conversion, parameter).Compile();
+        })(value);
+    }
 
     public static object ToNumericValue(this QuantityValue value, Type type)
     {
@@ -144,13 +153,18 @@ internal static class ReflectionExtensions
             return value;
         }
 
-        object number = value.IsDecimal ? (decimal)value : (double)value;
-        return Convert.ChangeType(number, type, CultureInfo.InvariantCulture);
+        return NumericWriters.GetOrAdd(type, numericType =>
+        {
+            numericType.ValidateQuantityType();
+            var parameter = Expression.Parameter(typeof(QuantityValue));
+            var conversion = Expression.Convert(Expression.Convert(parameter, numericType), typeof(object));
+            return Expression.Lambda<Func<QuantityValue, object>>(conversion, parameter).Compile();
+        })(value);
     }
 
     public static IQuantity AsQuantity(this QuantityValue value, Enum unit, Type quantityType)
     {
-        if (!unit.TryGetQuantityInfo(quantityType, out var quantityInfo))
+        if (!unit.TryGetQuantityInfo(quantityType, out _))
         {
             throw new ArgumentException($"{unit.GetType().Name} is not a known unit type.");
         }
@@ -160,31 +174,7 @@ internal static class ReflectionExtensions
             throw new ArgumentException($"{unit.GetType().Name}.{unit} is not a known unit value.");
         }
 
-        if (Quantity.TryFrom(value, unit, out var quantity))
-        {
-            return quantity!;
-        }
-
-        var quantityCtor = LazyQuantityConstructorTable.Value.GetOrAdd(quantityType, type =>
-        {
-            var ctor = (
-                from c in type.GetConstructors()
-                let parameters = c.GetParameters()
-                where parameters.Count() == 2
-                where
-                    parameters.First().ParameterType == typeof(QuantityValue) ||
-                    LazyQuantityValueCompatibleTypes.Value.Contains(parameters.First().ParameterType)
-                where parameters.Last().ParameterType == quantityInfo!.UnitType
-                select c).SingleOrDefault();
-
-            return ctor is null
-                ? throw new InvalidOperationException(
-                    "Unable to create quantity. No constructor found compatible with " +
-                    $"{type.Name}({typeof(QuantityValue).Name}, {quantityInfo!.UnitType.Name})")
-                : ctor;
-        })!;
-        return (IQuantity)quantityCtor.Invoke(
-            new object[] { value.ToNumericValue(quantityCtor.GetParameters().First().ParameterType), unit });
+        return unitInfo.From(value);
     }
 
     public static (UnitMetadata propertyMetadata, UnitMetadata conversionMetadata)

@@ -1,93 +1,38 @@
 using System;
-using System.Globalization;
-using System.Linq;
 
 namespace UnitsNet.Metadata.Tests.TestData;
 
-public readonly struct Coolness : IQuantity
+public readonly struct Coolness : IQuantity<Coolness, CoolnessUnit>
 {
-    static Coolness()
+    public Coolness(QuantityValue value, CoolnessUnit unit)
     {
-        BaseDimensions = BaseDimensions.Dimensionless;
-        Zero = new(0, CoolnessUnit.Fonzie);
-        Info = new(
-            nameof(Coolness),
-            typeof(CoolnessUnit),
-            new UnitInfo[]
-            {
-                new(CoolnessUnit.Fonzie, "fonzies", BaseUnits.Undefined),
-                new(CoolnessUnit.MegaFonzie, "megafonzies", BaseUnits.Undefined)
-            },
-            CoolnessUnit.Fonzie,
-            Zero,
-            BaseDimensions.Dimensionless);
-
-        UnitConverter.Default.SetConversionFunction<Coolness>(
-            CoolnessUnit.Fonzie,
-            CoolnessUnit.MegaFonzie,
-            c => new(c.Value / 1_000_000, CoolnessUnit.MegaFonzie));
-        UnitConverter.Default.SetConversionFunction<Coolness>(
-            CoolnessUnit.MegaFonzie,
-            CoolnessUnit.Fonzie,
-            c => new(c.Value * 1_000_000, CoolnessUnit.Fonzie));
-        UnitAbbreviationsCache.Default.MapUnitToDefaultAbbreviation(CoolnessUnit.Fonzie, "Fz");
-        UnitAbbreviationsCache.Default.MapUnitToDefaultAbbreviation(CoolnessUnit.MegaFonzie, "mFz");
-    }
-
-    public Coolness(double value, CoolnessUnit unit)
-    {
-        Unit = unit;
         Value = value;
+        Unit = unit;
     }
 
-    public static BaseDimensions BaseDimensions { get; }
-
-    public static Coolness Zero { get; }
-
-    public static QuantityInfo Info { get; }
-
-    public readonly BaseDimensions Dimensions => BaseDimensions;
-
-    public readonly QuantityInfo QuantityInfo => Info;
-
-    public Enum Unit { get; }
-
-    public double Value { get; }
-
-    QuantityValue IQuantity.Value => Value;
-
-    public bool Equals(IQuantity? other, IQuantity tolerance)
-        => other is Coolness coolness && Math.Abs(Value - coolness.As(Unit)) <= tolerance.As(Unit);
-
-    public readonly double As(Enum unit)
-        => (double)UnitConverter.Default.GetConversionFunction<Coolness>(Unit, unit).Invoke(this).Value;
-
-    public readonly string ToString(IFormatProvider? provider)
-    {
-        var unitAbbriviations = UnitAbbreviationsCache.Default
-            .GetUnitAbbreviations(typeof(CoolnessUnit), Convert.ToInt32(Unit, CultureInfo.InvariantCulture), provider);
-
-        return $"{Value} {unitAbbriviations.FirstOrDefault()}";
-    }
-
-    public override readonly string ToString()
-    {
-        return ToString(null);
-    }
-
-    public readonly IQuantity ToUnit(Enum unit)
-    {
-        if (unit is not CoolnessUnit coolness)
+    public static QuantityInfo<Coolness, CoolnessUnit> Info { get; } = new(
+        CoolnessUnit.Fonzie,
+        new[]
         {
-            throw new ArgumentException($"Unit must be of type {typeof(CoolnessUnit)}.", nameof(unit));
-        }
+            new UnitDefinition<CoolnessUnit>(CoolnessUnit.Fonzie, "fonzies", BaseUnits.Undefined),
+            new UnitDefinition<CoolnessUnit>(
+                CoolnessUnit.MegaFonzie,
+                "megafonzies",
+                BaseUnits.Undefined,
+                (QuantityValue)0.000001m),
+        },
+        BaseDimensions.Dimensionless,
+        From);
 
-        return new Coolness(As(unit), coolness);
-    }
+    public QuantityInfo<Coolness, CoolnessUnit> QuantityInfo => Info;
 
-    double IQuantity.As(UnitSystem unitSystem) => throw new NotImplementedException();
+    public QuantityValue Value { get; }
 
-    string IFormattable.ToString(string? format, IFormatProvider? formatProvider) => ToString(formatProvider);
+    public CoolnessUnit Unit { get; }
 
-    IQuantity IQuantity.ToUnit(UnitSystem unitSystem) => throw new NotImplementedException();
+    public UnitKey UnitKey => UnitKey.ForUnit(Unit);
+
+    public static Coolness From(QuantityValue value, CoolnessUnit unit) => new(value, unit);
+
+    public string ToString(string? format, IFormatProvider? provider) => Value.ToString(format, provider);
 }

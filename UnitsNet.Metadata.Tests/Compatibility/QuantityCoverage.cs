@@ -32,7 +32,7 @@ public class QuantityCoverage
 
             var metadata = UnitMetadata.FromUnitInfo(unit, quantity);
             Assert.That(metadata.TryConvertQuantity(1.0, baseMetadata, out var converted), Is.True, unit.Name);
-            var expected = Quantity.From(1, unit.Value).As(quantity.BaseUnitInfo.Value);
+            var expected = (double)UnitConverter.Default.ConvertValue(1, unit.UnitKey, quantity.BaseUnitInfo.UnitKey);
             var tolerance = Math.Max(1, Math.Abs(expected)) * 1e-10;
             Assert.That((double)converted.Value, Is.EqualTo(expected).Within(tolerance), unit.Name);
         }

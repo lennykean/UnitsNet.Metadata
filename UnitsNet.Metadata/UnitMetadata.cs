@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Globalization;
 
 using UnitsNet.Metadata.Reflection;
@@ -56,7 +55,7 @@ public sealed class UnitMetadata : UnitMetadataBase
                 unitInfo.Name,
                 Convert.ToInt32(unitInfo.Value),
                 GetDisplayName(unitInfo),
-                GetAbbriviation(unitInfo, quantityInfo, culture),
+                GetAbbriviation(unitInfo, culture),
                 quantityType);
         });
     }
@@ -78,56 +77,28 @@ public sealed class UnitMetadata : UnitMetadataBase
     /// <param name="convertedQuantity">The converted quantity</param>
     public bool TryConvertQuantity(QuantityValue value, UnitMetadata to, out IQuantity convertedQuantity)
     {
-        convertedQuantity = value.AsQuantity(UnitInfo.Value, QuantityType.QuantityInfo.ValueType);
+        convertedQuantity = value.AsQuantity(UnitInfo.Value, QuantityType.QuantityInfo.QuantityType);
         if (UnitInfo.Value.Equals(to.UnitInfo.Value))
         {
             return true;
         }
 
-        var conversionFunctions =
-            EphemeralKeyCache<UnitMetadata, ConcurrentDictionary<UnitMetadata, ConversionFunction>>.GlobalInstance
-                .GetOrAdd(this, _ => new());
-        if (!conversionFunctions.TryGetValue(to, out var conversionFunction))
+        QuantityValue convertedValue;
+        if (QuantityType.QuantityInfo.QuantityType == to.QuantityType.QuantityInfo.QuantityType)
         {
-            if (!UnitConverter.Default.TryGetConversionFunction(
-                    QuantityType.QuantityInfo.ValueType, UnitInfo.Value,
-                    to.QuantityType.QuantityInfo.ValueType,
-                    to.UnitInfo.Value,
-                    out conversionFunction))
-            {
-                var baseUnit = QuantityType.BaseUnit;
-                if (baseUnit is null || baseUnit != to.QuantityType.BaseUnit)
-                {
-                    return false;
-                }
-
-                if (!UnitConverter.Default.TryGetConversionFunction(
-                        QuantityType.QuantityInfo.ValueType,
-                        UnitInfo.Value,
-                        baseUnit.QuantityType.QuantityInfo.ValueType,
-                        baseUnit.UnitInfo.Value,
-                        out var baseUnitConversionFunction))
-                {
-                    return false;
-                }
-
-                if (!UnitConverter.Default.TryGetConversionFunction(
-                        baseUnit.QuantityType.QuantityInfo.ValueType,
-                        baseUnit.UnitInfo.Value,
-                        to.QuantityType.QuantityInfo.ValueType,
-                        to.UnitInfo.Value,
-                        out var finalUnitConversionFunction))
-                {
-                    return false;
-                }
-
-                conversionFunction = quantity => finalUnitConversionFunction(baseUnitConversionFunction(quantity));
-            }
-
-            conversionFunctions.AddOrUpdate(to, conversionFunction, (_, _) => conversionFunction);
+            var baseValue = UnitInfo.ConversionToBase.Evaluate(value);
+            convertedValue = to.UnitInfo.ConversionFromBase.Evaluate(baseValue);
+        }
+        else if (!UnitConverter.Default.TryConvertValue(
+                value,
+                UnitInfo.UnitKey,
+                to.UnitInfo.UnitKey,
+                out convertedValue))
+        {
+            return false;
         }
 
-        convertedQuantity = conversionFunction.Invoke(convertedQuantity);
+        convertedQuantity = to.UnitInfo.From(convertedValue);
         return true;
     }
 

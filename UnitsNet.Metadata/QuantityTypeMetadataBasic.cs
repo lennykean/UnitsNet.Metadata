@@ -28,7 +28,8 @@ public sealed class QuantityTypeMetadataBasic : QuantityTypeMetadataBase
     /// <param name="quantityInfo">The UnitsNet information of the quantity type</param>
     public static QuantityTypeMetadataBasic? FromQuantityInfo(QuantityInfo quantityInfo)
     {
-        return EphemeralValueCache<Type, QuantityTypeMetadataBasic>.GlobalInstance.GetOrAdd(quantityInfo.ValueType, _ =>
+        var cache = EphemeralValueCache<Type, QuantityTypeMetadataBasic>.GlobalInstance;
+        return cache.GetOrAdd(quantityInfo.QuantityType, _ =>
         {
             var name = quantityInfo.Name;
             var displayName = GetDisplayName(quantityInfo);

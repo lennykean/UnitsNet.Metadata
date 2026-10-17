@@ -282,7 +282,7 @@ public interface IMetadataProvider<TMetadataAttribue, TMetadata>
         var unitMetadata = metadata.Unit!;
         var quantityTypeMetadata = unitMetadata.QuantityType;
 
-        return value.AsQuantity(unitMetadata.UnitInfo.Value, quantityTypeMetadata.QuantityInfo.ValueType);
+        return value.AsQuantity(unitMetadata.UnitInfo.Value, quantityTypeMetadata.QuantityInfo.QuantityType);
     }
 
     private IQuantity ConvertQuantity<TObject>(TObject obj, PropertyInfo property, Enum to, CultureInfo? culture = null)

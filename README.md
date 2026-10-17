@@ -33,6 +33,7 @@ Each UnitsNet major version has its own package version line:
 | 3.x preview | 6 preview | `unitsnet-v6` |
 
 To upgrade from 1.x, update all UnitsNet.Metadata packages together and follow the UnitsNet [4.x to 5.x upgrade guide](https://github.com/angularsen/UnitsNet/wiki/Upgrading-from-4.x-to-5.x).
+The 3.x previews pin UnitsNet 6.0.0-pre021 exactly, because UnitsNet preview APIs change between builds.
 
 ### Annotations
 

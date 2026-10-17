@@ -33,7 +33,7 @@ public class UnitChoicesTests
     {
         var choices = UnitChoices.For(Metadata(nameof(Box.Width)));
 
-        Assert.That(choices, Has.Count.EqualTo(Length.Info.UnitInfos.Length));
+        Assert.That(choices, Has.Count.EqualTo(Length.Info.UnitInfos.Count));
         Assert.That(choices.Select(c => c.Id), Does.Contain("Length.Meter").And.Contain("Length.Foot"));
     }
 

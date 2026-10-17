@@ -54,7 +54,7 @@ public class AllowUnitConversionAttribute : Attribute
                 return default;
             }
 
-            return quantityInfo?.ValueType;
+            return quantityInfo?.QuantityType;
         });
     }
 

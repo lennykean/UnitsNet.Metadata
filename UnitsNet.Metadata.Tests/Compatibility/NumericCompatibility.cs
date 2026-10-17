@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Numerics;
 
 using NUnit.Framework;
 
@@ -18,6 +19,28 @@ public class NumericCompatibility
     public enum CustomUnit
     {
         Token,
+    }
+
+    [Test]
+    public void ArbitraryPrecisionAndUnsignedValuesSurviveGetSetAndProxyConversion()
+    {
+        var huge = BigInteger.Pow(10, 80) + 1;
+        var readings = new Readings { HugeBytes = huge, UnsignedBytes = ulong.MaxValue };
+        Assert.Multiple(() =>
+        {
+            Assert.That((BigInteger)readings.GetQuantity(r => r.HugeBytes).Value, Is.EqualTo(huge));
+            Assert.That((ulong)readings.GetQuantity(r => r.UnsignedBytes).Value, Is.EqualTo(ulong.MaxValue));
+        });
+        readings.SetQuantity(r => r.UnsignedBytes, Information.FromBytes((QuantityValue)ulong.MaxValue));
+        Assert.That(readings.UnsignedBytes, Is.EqualTo(ulong.MaxValue));
+
+        var proxy = new[] { readings }.AsDynamicProxies()
+            .WithConversion(r => r.HugeBytes, InformationUnit.Bit)
+            .Build()
+            .Single();
+        Assert.That(proxy.HugeBytes, Is.EqualTo(huge * 8));
+        proxy.HugeBytes = (huge + 1) * 8;
+        Assert.That(readings.HugeBytes, Is.EqualTo(huge + 1));
     }
 
     [Test]
@@ -86,6 +109,21 @@ public class NumericCompatibility
     }
 
     [Test]
+    public void FractionalQuantityValuesAreNotRoundedThroughDecimalOrDouble()
+    {
+        var third = QuantityValue.One / 3;
+        var readings = new Readings { FractionalBytes = third };
+        var bits = readings.ConvertQuantity(r => r.FractionalBytes, InformationUnit.Bit);
+        Assert.Multiple(() =>
+        {
+            Assert.That(readings.GetQuantity(r => r.FractionalBytes).Value, Is.EqualTo(third));
+            Assert.That(bits.Value, Is.EqualTo(third * 8));
+        });
+        readings.SetQuantity(r => r.FractionalBytes, Information.FromBits(third * 8));
+        Assert.That(readings.FractionalBytes, Is.EqualTo(third));
+    }
+
+    [Test]
     public void OverflowIsReportedInsteadOfSilentlyTruncating()
     {
         var readings = new Readings();
@@ -93,50 +131,31 @@ public class NumericCompatibility
             () => readings.SetQuantity(r => r.IntegerBytes, Information.FromBytes(decimal.MaxValue)));
     }
 
-    public readonly struct CustomQuantity : IQuantity
+    public readonly struct CustomQuantity : IQuantity<CustomQuantity, CustomUnit>
     {
-        static CustomQuantity()
-        {
-            UnitAbbreviationsCache.Default.MapUnitToDefaultAbbreviation(CustomUnit.Token, "tk");
-        }
-
         public CustomQuantity(QuantityValue value, CustomUnit unit)
         {
             Value = value;
             Unit = unit;
         }
 
-        public static QuantityInfo Info { get; } = new(
-            nameof(CustomQuantity),
-            typeof(CustomUnit),
-            new[] { new UnitInfo(CustomUnit.Token, "tokens", BaseUnits.Undefined) },
+        public static QuantityInfo<CustomQuantity, CustomUnit> Info { get; } = new(
             CustomUnit.Token,
-            new CustomQuantity(0, CustomUnit.Token),
-            BaseDimensions.Dimensionless);
+            new[] { new UnitDefinition<CustomUnit>(CustomUnit.Token, "tokens", BaseUnits.Undefined) },
+            BaseDimensions.Dimensionless,
+            From);
 
         public QuantityValue Value { get; }
 
-        public Enum Unit { get; }
+        public CustomUnit Unit { get; }
 
-        public QuantityInfo QuantityInfo => Info;
+        public UnitKey UnitKey => UnitKey.ForUnit(Unit);
 
-        public BaseDimensions Dimensions => BaseDimensions.Dimensionless;
+        public QuantityInfo<CustomQuantity, CustomUnit> QuantityInfo => Info;
 
-        public double As(Enum unit) => unit.Equals(Unit) ? (double)Value : throw new ArgumentException("Unknown unit.");
-
-        public double As(UnitSystem unitSystem) => (double)Value;
-
-        public IQuantity ToUnit(Enum unit) => unit.Equals(Unit) ? this : throw new ArgumentException("Unknown unit.");
-
-        public IQuantity ToUnit(UnitSystem unitSystem) => this;
-
-        public string ToString(IFormatProvider? provider) => Value.ToString(provider!);
+        public static CustomQuantity From(QuantityValue value, CustomUnit unit) => new(value, unit);
 
         public string ToString(string? format, IFormatProvider? provider) => Value.ToString(format, provider);
-
-        public bool Equals(IQuantity? other, IQuantity tolerance)
-            => other is CustomQuantity quantity &&
-                Math.Abs((decimal)Value - (decimal)quantity.Value) <= (decimal)tolerance.Value;
     }
 
     public class Readings
@@ -152,6 +171,15 @@ public class NumericCompatibility
 
         [Quantity(TemperatureUnit.DegreeCelsius)]
         public float Temperature { get; set; }
+
+        [Quantity(InformationUnit.Byte)]
+        public virtual BigInteger HugeBytes { get; set; }
+
+        [Quantity(InformationUnit.Byte)]
+        public ulong UnsignedBytes { get; set; }
+
+        [Quantity(InformationUnit.Byte)]
+        public QuantityValue FractionalBytes { get; set; }
     }
 
     public class CustomReading

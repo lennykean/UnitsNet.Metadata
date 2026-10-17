@@ -40,7 +40,7 @@ public sealed class QuantityTypeMetadata : QuantityTypeMetadataBase
     {
         culture ??= CultureInfo.CurrentCulture;
         var cache = EphemeralValueCache<(Type, CultureInfo), QuantityTypeMetadata>.GlobalInstance;
-        return cache.GetOrAdd((quantityInfo.ValueType, culture), _ =>
+        return cache.GetOrAdd((quantityInfo.QuantityType, culture), _ =>
         {
             var name = quantityInfo.Name;
             var displayName = GetDisplayName(quantityInfo);
