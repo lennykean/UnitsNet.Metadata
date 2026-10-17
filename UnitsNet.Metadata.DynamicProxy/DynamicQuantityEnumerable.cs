@@ -10,7 +10,8 @@ using UnitsNet.Metadata.Annotations;
 
 namespace UnitsNet.Metadata.DynamicProxy;
 
-internal class DynamicQuantityEnumerable<TObject, TMetadataAttribute, TMetadata> : IDynamicProxyEnumerable<TObject, TMetadataAttribute, TMetadata>
+internal sealed class DynamicQuantityEnumerable<TObject, TMetadataAttribute, TMetadata>
+    : IDynamicProxyEnumerable<TObject, TMetadataAttribute, TMetadata>
     where TObject : class
     where TMetadataAttribute : QuantityAttribute, IMetadataAttribute<TMetadataAttribute, TMetadata>
     where TMetadata : QuantityMetadata, IMetadata<TMetadata>
@@ -25,7 +26,8 @@ internal class DynamicQuantityEnumerable<TObject, TMetadataAttribute, TMetadata>
         DynamicProxyMetadataProvider<TMetadataAttribute, TMetadata> dynamicMetadataProvider)
     {
         _objects = objects ?? throw new ArgumentNullException(nameof(objects));
-        _dynamicMetadataProvider = dynamicMetadataProvider ?? throw new ArgumentNullException(nameof(dynamicMetadataProvider));
+        _dynamicMetadataProvider = dynamicMetadataProvider ??
+            throw new ArgumentNullException(nameof(dynamicMetadataProvider));
     }
 
     public IEnumerator<TObject> GetEnumerator()
@@ -34,17 +36,31 @@ internal class DynamicQuantityEnumerable<TObject, TMetadataAttribute, TMetadata>
         options.AddMixinInstance(_dynamicMetadataProvider);
 
         var proxyGenerator = new ProxyGenerator();
-        var interceptor = new DynamicQuantityInterceptor<TObject, TMetadataAttribute, TMetadata>(_dynamicMetadataProvider);
+        var interceptor = new DynamicQuantityInterceptor<TObject, TMetadataAttribute, TMetadata>(
+            _dynamicMetadataProvider);
 
         Func<object, TObject> createProxy = typeof(TObject).IsInterface
-            ? proxyObj => (TObject)proxyGenerator.CreateInterfaceProxyWithTarget(typeof(TObject), proxyObj, options, interceptor)
-            : proxyObj => (TObject)proxyGenerator.CreateClassProxyWithTarget(typeof(TObject), proxyObj, options, interceptor);
+            ? proxyObj => (TObject)proxyGenerator.CreateInterfaceProxyWithTarget(
+                typeof(TObject),
+                proxyObj,
+                options,
+                interceptor)
+            : proxyObj => (TObject)proxyGenerator.CreateClassProxyWithTarget(
+                typeof(TObject),
+                proxyObj,
+                options,
+                interceptor);
 
         foreach (TObject obj in _objects)
+        {
             yield return _proxyCache.GetOrAdd(obj, _ => createProxy(obj));
+        }
     }
 
-    public bool TryGetMetadata(PropertyInfo property, [NotNullWhen(true)] out TMetadata? metadata, CultureInfo? culture = null)
+    public bool TryGetMetadata(
+        PropertyInfo property,
+        [NotNullWhen(true)] out TMetadata? metadata,
+        CultureInfo? culture = null)
     {
         return _dynamicMetadataProvider.TryGetMetadata(property, out metadata, culture);
     }

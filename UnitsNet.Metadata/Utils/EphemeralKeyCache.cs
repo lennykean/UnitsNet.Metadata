@@ -5,9 +5,9 @@ using System.Runtime.CompilerServices;
 
 namespace UnitsNet.Metadata.Utils;
 
-internal class EphemeralKeyCache<TKey, TItem> where TKey : class where TItem : class?
+internal sealed class EphemeralKeyCache<TKey, TItem> where TKey : class where TItem : class?
 {
-    private static readonly Lazy<EphemeralKeyCache<TKey, TItem>> _lazyGlobalInstance = new(() => new());
+    private static readonly Lazy<EphemeralKeyCache<TKey, TItem>> LazyGlobalInstance = new(() => new());
 
     private readonly ConditionalWeakTable<TKey, TItem> _cache;
 
@@ -16,12 +16,14 @@ internal class EphemeralKeyCache<TKey, TItem> where TKey : class where TItem : c
         _cache = new();
     }
 
-    public static EphemeralKeyCache<TKey, TItem> GlobalInstance => _lazyGlobalInstance.Value;
+    public static EphemeralKeyCache<TKey, TItem> GlobalInstance => LazyGlobalInstance.Value;
 
     public bool TryGet(TKey key, [MaybeNullWhen(true)] out TItem? item)
     {
         if (!_cache.TryGetValue(key, out item))
+        {
             return false;
+        }
 
         return true;
     }

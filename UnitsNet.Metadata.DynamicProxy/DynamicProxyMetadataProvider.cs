@@ -9,7 +9,8 @@ using UnitsNet.Metadata.Utils;
 
 namespace UnitsNet.Metadata.DynamicProxy;
 
-internal class DynamicProxyMetadataProvider<TMetadataAttribute, TMetadata> : IMetadataProvider<TMetadataAttribute, TMetadata>
+internal sealed class DynamicProxyMetadataProvider<TMetadataAttribute, TMetadata>
+    : IMetadataProvider<TMetadataAttribute, TMetadata>
     where TMetadataAttribute : QuantityAttribute, IMetadataAttribute<TMetadataAttribute, TMetadata>
     where TMetadata : QuantityMetadata, IMetadata<TMetadata>
 {
@@ -25,16 +26,25 @@ internal class DynamicProxyMetadataProvider<TMetadataAttribute, TMetadata> : IMe
             dynamicMetadata?.ToDictionary(k => k.Property, v => v) ?? new(), new DeclaringTypePropertyComparer());
     }
 
-    public bool TryGetMetadata(PropertyInfo property, [NotNullWhen(true)] out TMetadata? metadata, CultureInfo? culture = null)
+    public bool TryGetMetadata(
+        PropertyInfo property,
+        [NotNullWhen(true)] out TMetadata? metadata,
+        CultureInfo? culture = null)
     {
         if (property is null)
+        {
             throw new ArgumentNullException(nameof(property));
+        }
 
         if (_dynamicMetadata.TryGetValue(property, out metadata) && metadata.Unit is not null)
+        {
             return true;
+        }
 
         if (_baseMetadataProvider.TryGetMetadata(property, out metadata) && metadata?.Unit is not null)
+        {
             return true;
+        }
 
         return false;
     }
@@ -48,13 +58,23 @@ internal class DynamicProxyMetadataProvider<TMetadataAttribute, TMetadata> : IMe
     {
         var (_, toMetadata) = property.GetConversionMetadatas(to: unit, this, culture);
 
-        if (!_baseMetadataProvider.TryGetMetadata(property, out var innerMetadata) || innerMetadata is null || innerMetadata.Unit is null)
+        if (!_baseMetadataProvider.TryGetMetadata(property, out var innerMetadata) || innerMetadata is null ||
+            innerMetadata.Unit is null)
+        {
             throw new InvalidOperationException($"No metadata found for property {property}.");
+        }
 
-        var convertBack = UnitMetadataBasic.FromUnitInfo(innerMetadata.Unit.UnitInfo, innerMetadata.Unit.QuantityType.QuantityInfo, culture)!;
+        var convertBack = UnitMetadataBasic.FromUnitInfo(
+            innerMetadata.Unit.UnitInfo,
+            innerMetadata.Unit.QuantityType.QuantityInfo,
+            culture)!;
         var conversions = innerMetadata.Conversions.Append(convertBack);
 
-        var metadata = innerMetadata.Clone(overrideProperty: property, overrideConversions: conversions, overrideUnit: toMetadata, overrideCulture: culture);
+        var metadata = innerMetadata.Clone(
+            overrideProperty: property,
+            overrideConversions: conversions,
+            overrideUnit: toMetadata,
+            overrideCulture: culture);
 
         _dynamicMetadata.AddOrUpdate(property, _ => metadata, (_, _) => metadata);
     }
@@ -62,20 +82,30 @@ internal class DynamicProxyMetadataProvider<TMetadataAttribute, TMetadata> : IMe
     public void ValidateMetadata(PropertyInfo property)
     {
         if (!TryGetMetadata(property, out var metadata))
+        {
             return;
+        }
 
         metadata.Validate();
 
         if (_baseMetadataProvider.TryGetMetadata(metadata.Property, out var baseMetadata) &&
             metadata.Unit is not null && metadata.Unit.UnitInfo != baseMetadata.Unit?.UnitInfo &&
-            metadata.Property.GetMethod is not null && (!metadata.Property.GetMethod.IsAbstract && !metadata.Property.GetMethod.IsVirtual || metadata.Property.GetMethod.IsFinal) &&
-            metadata.Property.SetMethod is not null && (!metadata.Property.SetMethod.IsAbstract && !metadata.Property.SetMethod.IsVirtual || metadata.Property.SetMethod.IsFinal))
-            throw new InvalidOperationException($"{metadata.Property.DeclaringType.Name}.{metadata.Property.Name} is non-virtual and cannot be converted to {metadata.Unit.Name}");
+            metadata.Property.GetMethod is not null && (!metadata.Property.GetMethod.IsAbstract &&
+                !metadata.Property.GetMethod.IsVirtual || metadata.Property.GetMethod.IsFinal) &&
+            metadata.Property.SetMethod is not null && (!metadata.Property.SetMethod.IsAbstract &&
+                !metadata.Property.SetMethod.IsVirtual || metadata.Property.SetMethod.IsFinal))
+        {
+            throw new InvalidOperationException(
+                $"{metadata.Property.DeclaringType.Name}.{metadata.Property.Name} is non-virtual " +
+                $"and cannot be converted to {metadata.Unit.Name}");
+        }
     }
 
     public void HoistMetadata<TSuperObject, TDerivedObject>(CultureInfo? culture = null)
     {
-        foreach (var metadata in ((IMetadataProvider<TMetadataAttribute, TMetadata>)this).GetMetadata(typeof(TDerivedObject), culture))
+        foreach (var metadata in ((IMetadataProvider<TMetadataAttribute, TMetadata>)this).GetMetadata(
+            typeof(TDerivedObject),
+            culture))
         {
             if (metadata.Property.TryGetInterfaceProperty(typeof(TSuperObject), out var mappedProperty) ||
                 metadata.Property.TryGetVirtualProperty(typeof(TSuperObject), out mappedProperty))

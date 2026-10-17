@@ -22,23 +22,28 @@ public class GetObjectMetadata
 
         Assert.Multiple(() =>
         {
-            CollectionAssert.AreEquivalent(metadata, collectionMetadata);
+            Assert.That(collectionMetadata, Is.EquivalentTo(metadata));
             Assert.That(metadata, Has.Count.EqualTo(6));
             Assert.That(metadata, Has.ItemAt(nameof(Box.Width))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter));
             Assert.That(metadata, Has.ItemAt(nameof(Box.Height))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter));
             Assert.That(metadata, Has.ItemAt(nameof(Box.Depth))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter));
             Assert.That(metadata, Has.ItemAt(nameof(Box.Weight))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(MassUnit.Kilogram));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(MassUnit.Kilogram));
             Assert.That(metadata, Has.ItemAt(nameof(Box.Items))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(ScalarUnit.Amount));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(ScalarUnit.Amount));
             Assert.That(metadata, Has.ItemAt(nameof(Box.Volume))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicMeter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicMeter));
         });
     }
-
 
     [TestCase(TestName = "{c} (with interface metadata)")]
     public void WithInterfaceMetadata()
@@ -50,12 +55,14 @@ public class GetObjectMetadata
 
         Assert.Multiple(() =>
         {
-            CollectionAssert.AreEquivalent(metadata, collectionMetadata);
+            Assert.That(collectionMetadata, Is.EquivalentTo(metadata));
             Assert.That(metadata, Has.Count.EqualTo(2));
             Assert.That(metadata, Has.ItemAt(nameof(IHardDrive.Capacity))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(InformationUnit.Gigabyte));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(InformationUnit.Gigabyte));
             Assert.That(metadata, Has.ItemAt(nameof(IHardDrive.FreeSpace))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(InformationUnit.Gigabyte));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(InformationUnit.Gigabyte));
         });
     }
 
@@ -91,7 +98,8 @@ public class GetObjectMetadata
         {
             Assert.That(metadata, Has.Count.EqualTo(1));
             Assert.That(metadata, Has.ItemAt(nameof(employee.Coolness))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(CoolnessUnit.MegaFonzie));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(CoolnessUnit.MegaFonzie));
         });
     }
 
@@ -117,14 +125,17 @@ public class GetObjectMetadata
 
         Assert.Multiple(() =>
         {
-            CollectionAssert.AreEquivalent(metadata, collectionMetadata);
+            Assert.That(collectionMetadata, Is.EquivalentTo(metadata));
             Assert.That(metadata, Has.Count.EqualTo(3));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Horsepower))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(PowerUnit.MechanicalHorsepower));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(PowerUnit.MechanicalHorsepower));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Torque))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(TorqueUnit.PoundForceFoot));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(TorqueUnit.PoundForceFoot));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Rpm))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(RotationalSpeedUnit.RevolutionPerMinute));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(RotationalSpeedUnit.RevolutionPerMinute));
         });
     }
 
@@ -134,21 +145,28 @@ public class GetObjectMetadata
         var obj = new DynoData();
 
         var metadata = obj.GetObjectMetadata<DynoData, DisplayMeasurementAttribute, DisplayMeasurementMetadata>();
-        var collectionMetadata = new List<DynoData> { obj }.GetObjectMetadata<IEnumerable<DynoData>, DisplayMeasurementAttribute, DisplayMeasurementMetadata>();
+        var collectionMetadata = new List<DynoData> { obj }
+            .GetObjectMetadata<IEnumerable<DynoData>, DisplayMeasurementAttribute, DisplayMeasurementMetadata>();
 
         Assert.Multiple(() =>
         {
-            CollectionAssert.AreEquivalent(metadata, collectionMetadata);
+            Assert.That(collectionMetadata, Is.EquivalentTo(metadata));
             Assert.That(metadata, Has.Count.EqualTo(3));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Horsepower))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(PowerUnit.MechanicalHorsepower).And
-                .ItemAt(nameof(DynoData.Horsepower)).Property(nameof(DisplayMeasurementMetadata.DisplayName)).EqualTo("Engine Horsepower"));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(PowerUnit.MechanicalHorsepower).And
+                .ItemAt(nameof(DynoData.Horsepower)).Property(nameof(DisplayMeasurementMetadata
+                    .DisplayName)).EqualTo("Engine Horsepower"));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Torque))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(TorqueUnit.PoundForceFoot).And
-                .ItemAt(nameof(DynoData.Torque)).Property(nameof(DisplayMeasurementMetadata.DisplayName)).EqualTo("Engine Torque"));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(TorqueUnit.PoundForceFoot).And
+                .ItemAt(nameof(DynoData.Torque)).Property(nameof(DisplayMeasurementMetadata
+                    .DisplayName)).EqualTo("Engine Torque"));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Rpm))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(RotationalSpeedUnit.RevolutionPerMinute).And
-                .ItemAt(nameof(DynoData.Rpm)).Property(nameof(DisplayMeasurementMetadata.DisplayName)).EqualTo("Engine Speed"));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(RotationalSpeedUnit.RevolutionPerMinute).And
+                .ItemAt(nameof(DynoData.Rpm)).Property(nameof(DisplayMeasurementMetadata
+                    .DisplayName)).EqualTo("Engine Speed"));
         });
     }
 }

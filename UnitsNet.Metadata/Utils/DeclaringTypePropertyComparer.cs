@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace UnitsNet.Metadata.Utils;
 
-internal class DeclaringTypePropertyComparer : IEqualityComparer<PropertyInfo>
+internal sealed class DeclaringTypePropertyComparer : IEqualityComparer<PropertyInfo>
 {
     public bool Equals(PropertyInfo x, PropertyInfo y)
     {

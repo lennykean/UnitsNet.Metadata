@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace UnitsNet.Metadata;
 
-internal class MetadataDictionary<TMetadata> : IReadOnlyDictionary<string, TMetadata>
+internal sealed class MetadataDictionary<TMetadata> : IReadOnlyDictionary<string, TMetadata>
     where TMetadata : QuantityMetadata, IMetadata<TMetadata>
 {
     private readonly IEnumerable<TMetadata> _metadatas;
@@ -39,7 +39,9 @@ internal class MetadataDictionary<TMetadata> : IReadOnlyDictionary<string, TMeta
     {
         value = default!;
         if (!ContainsKey(key))
+        {
             return false;
+        }
 
         value = this[key];
         return true;
@@ -49,7 +51,9 @@ internal class MetadataDictionary<TMetadata> : IReadOnlyDictionary<string, TMeta
     {
         value = default!;
         if (!ContainsKey(key))
+        {
             return false;
+        }
 
         value = this[key];
         return true;
@@ -57,7 +61,8 @@ internal class MetadataDictionary<TMetadata> : IReadOnlyDictionary<string, TMeta
 
     public IEnumerator<KeyValuePair<string, TMetadata>> GetEnumerator()
     {
-        return _metadatas.Select(metadata => new KeyValuePair<string, TMetadata>(metadata.FieldName, metadata)).GetEnumerator();
+        return _metadatas.Select(metadata => new KeyValuePair<string, TMetadata>(metadata.FieldName, metadata))
+            .GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

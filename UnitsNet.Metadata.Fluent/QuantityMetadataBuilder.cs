@@ -2,43 +2,42 @@
 
 namespace UnitsNet.Metadata.Fluent;
 
-public class QuantityMetadataBuilder<TObject, TMetadataAttribute, TMetadata> : MetadataBuilder<TObject, TMetadataAttribute, TMetadata>
+/// <summary>
+/// A fluent builder of the metadata of a quantity property.
+/// </summary>
+/// <typeparam name="TObject">The type that owns the property</typeparam>
+/// <typeparam name="TMetadataAttribute">The quantity attribute type</typeparam>
+/// <typeparam name="TMetadata">The metadata type</typeparam>
+public class QuantityMetadataBuilder<TObject, TMetadataAttribute, TMetadata>
+    : MetadataBuilder<TObject, TMetadataAttribute, TMetadata>
     where TObject : class
     where TMetadataAttribute : QuantityAttribute, IMetadataAttribute<TMetadataAttribute, TMetadata>
     where TMetadata : QuantityMetadata, IMetadata<TMetadata>
 {
     private readonly TMetadataAttribute _attribute;
 
-    public QuantityMetadataBuilder(MetadataBuilder<TObject, TMetadataAttribute, TMetadata> inner, TMetadataAttribute attribute) : base(inner)
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="QuantityMetadataBuilder{TObject,TMetadataAttribute,TMetadata}"/> class.
+    /// </summary>
+    /// <param name="inner">The builder to continue from</param>
+    /// <param name="attribute">The quantity attribute being configured</param>
+    public QuantityMetadataBuilder(
+        MetadataBuilder<TObject, TMetadataAttribute, TMetadata> inner,
+        TMetadataAttribute attribute) : base(inner)
     {
         _attribute = attribute;
     }
 
-    public MetadataBuilder<TObject, TMetadataAttribute, TMetadata> WithAllowedConversion<TBuilder>(Enum to, Type? quantityType = null)
-    {
-        var conversionAttribute = new AllowUnitConversionAttribute(to, quantityType);
-
-        AllowedConversionAttributes.AddOrUpdate(_attribute, _ => new() { conversionAttribute }, (_, bag) =>
-        {
-            bag.Add(conversionAttribute);
-            return bag;
-        });
-        
-        return this;
-    }
-}
-
-public class QuantityMetadataBuilder<TObject> : MetadataBuilder<TObject>
-    where TObject : class
-{
-    private readonly QuantityAttribute _attribute;
-
-    public QuantityMetadataBuilder(MetadataBuilder<TObject> inner, QuantityAttribute attribute) : base(inner)
-    {
-        _attribute = attribute;
-    }
-
-    public QuantityMetadataBuilder<TObject> WithAllowedConversion(Enum to, Type? quantityType = null)
+    /// <summary>
+    /// Allows the quantity to be converted to the given unit.
+    /// </summary>
+    /// <typeparam name="TBuilder">The builder type</typeparam>
+    /// <param name="to">The unit to allow conversion to</param>
+    /// <param name="quantityType">The quantity type of the unit</param>
+    public MetadataBuilder<TObject, TMetadataAttribute, TMetadata> WithAllowedConversion<TBuilder>(
+        Enum to,
+        Type? quantityType = null)
     {
         var conversionAttribute = new AllowUnitConversionAttribute(to, quantityType);
 

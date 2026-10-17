@@ -38,18 +38,23 @@ public class AsDynamicProxies
 
         Assert.Multiple(() =>
         {
-            CollectionAssert.AreEquivalent(metadata, collectionMetadata);
+            Assert.That(collectionMetadata, Is.EquivalentTo(metadata));
             Assert.That(metadata, Has.Count.EqualTo(6));
             Assert.That(metadata, Has.ItemAt(nameof(Box.Width))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Centimeter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Centimeter));
             Assert.That(metadata, Has.ItemAt(nameof(Box.Height))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Centimeter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Centimeter));
             Assert.That(metadata, Has.ItemAt(nameof(Box.Depth))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Centimeter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Centimeter));
             Assert.That(metadata, Has.ItemAt(nameof(Box.Weight))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(MassUnit.Gram));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(MassUnit.Gram));
             Assert.That(metadata, Has.ItemAt(nameof(Box.Volume))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicDecimeter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicDecimeter));
 
             Assert.That(proxy, Has.Property(nameof(Box.Width)).EqualTo(100));
             Assert.That(proxy, Has.Property(nameof(Box.Height)).EqualTo(200));
@@ -121,7 +126,8 @@ public class AsDynamicProxies
                     .WithConversion(b => b.Distance, LengthUnit.AstronomicalUnit)
                     .WithConversion(b => b.Luminosity, LuminosityUnit.SolarLuminosity)
                     .Build(),
-                Throws.InvalidOperationException.With.Message.Match("(.*) is non-virtual and cannot be converted to (.*)"));
+                Throws.InvalidOperationException.With.Message
+                    .Match("(.*) is non-virtual and cannot be converted to (.*)"));
 
             Assert.That(() =>
                 Builder<TransmitterData>.CreateListOfSize(100).Build().AsDynamicProxies()
@@ -129,7 +135,8 @@ public class AsDynamicProxies
                     .WithConversion(b => b.Frequency, FrequencyUnit.Kilohertz)
                     .WithConversion(b => b.Temperature, TemperatureUnit.DegreeCelsius)
                     .Build(),
-                Throws.InvalidOperationException.With.Message.Match("(.*) is non-virtual and cannot be converted to (.*)"));
+                Throws.InvalidOperationException.With.Message
+                    .Match("(.*) is non-virtual and cannot be converted to (.*)"));
         });
     }
 
@@ -156,13 +163,16 @@ public class AsDynamicProxies
 
         Assert.Multiple(() =>
         {
-            CollectionAssert.AreEquivalent(metadata, collectionMetadata);
+            Assert.That(collectionMetadata, Is.EquivalentTo(metadata));
             Assert.That(metadata, Has.ItemAt(nameof(ITransmitterThermalData.Power))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(PowerUnit.Milliwatt));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(PowerUnit.Milliwatt));
             Assert.That(metadata, Has.ItemAt(nameof(ITransmitterThermalData.Frequency))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(FrequencyUnit.Megahertz));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(FrequencyUnit.Megahertz));
             Assert.That(metadata, Has.ItemAt(nameof(ITransmitterThermalData.Temperature))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(TemperatureUnit.DegreeCelsius));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(TemperatureUnit.DegreeCelsius));
 
             Assert.That(proxy, Has.Property(nameof(TransmitterData.Power)).EqualTo(2000).Within(0.01));
             Assert.That(proxy, Has.Property(nameof(TransmitterData.Frequency)).EqualTo(3).Within(0.01));
@@ -191,11 +201,13 @@ public class AsDynamicProxies
 
         Assert.Multiple(() =>
         {
-            CollectionAssert.AreEquivalent(metadata, collectionMetadata);
+            Assert.That(collectionMetadata, Is.EquivalentTo(metadata));
             Assert.That(metadata, Has.ItemAt(nameof(VehicleTelemetry.Efficency))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(FuelEfficiencyUnit.MilePerUsGallon));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(FuelEfficiencyUnit.MilePerUsGallon));
             Assert.That(metadata, Has.ItemAt(nameof(VehicleTelemetry.Speed))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(SpeedUnit.MilePerHour));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(SpeedUnit.MilePerHour));
 
             Assert.That(proxy, Has.Property(nameof(MotorVehicleTelemetry.Efficency)).EqualTo(4.70).Within(0.01));
             Assert.That(proxy, Has.Property(nameof(MotorVehicleTelemetry.Speed)).EqualTo(6.21).Within(0.01));
@@ -222,11 +234,13 @@ public class AsDynamicProxies
 
         Assert.Multiple(() =>
         {
-            CollectionAssert.AreEquivalent(metadata, collectionMetadata);
+            Assert.That(collectionMetadata, Is.EquivalentTo(metadata));
             Assert.That(metadata, Has.ItemAt(nameof(VehicleTelemetry.Efficency))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(FuelEfficiencyUnit.MilePerUsGallon));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(FuelEfficiencyUnit.MilePerUsGallon));
             Assert.That(metadata, Has.ItemAt(nameof(VehicleTelemetry.Speed))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(SpeedUnit.MilePerHour));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(SpeedUnit.MilePerHour));
 
             Assert.That(proxy, Has.Property(nameof(MotorVehicleTelemetry.Efficency)).EqualTo(4.7).Within(0.01));
             Assert.That(proxy, Has.Property(nameof(MotorVehicleTelemetry.Speed)).EqualTo(6.21).Within(0.01));
@@ -254,13 +268,16 @@ public class AsDynamicProxies
 
         Assert.Multiple(() =>
         {
-            CollectionAssert.AreEquivalent(metadata, collectionMetadata);
+            Assert.That(collectionMetadata, Is.EquivalentTo(metadata));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Horsepower))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(PowerUnit.Kilowatt));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(PowerUnit.Kilowatt));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Torque))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(TorqueUnit.NewtonMeter));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(TorqueUnit.NewtonMeter));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Rpm))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(RotationalSpeedUnit.RevolutionPerMinute));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(RotationalSpeedUnit.RevolutionPerMinute));
 
             Assert.That(obj.ConvertQuantity(d => d.Horsepower, to: PowerUnit.Kilowatt), Has
                 .Property(nameof(IQuantity.Value)).EqualTo(223.7).Within(0.01).And
@@ -281,7 +298,8 @@ public class AsDynamicProxies
             Rpm = 6000
         };
 
-        var proxies = new[] { obj }.AsDynamicProxies<DynoData, DisplayMeasurementAttribute, DisplayMeasurementMetadata>()
+        var proxies = new[] { obj }
+            .AsDynamicProxies<DynoData, DisplayMeasurementAttribute, DisplayMeasurementMetadata>()
             .WithConversion(t => t.Horsepower, PowerUnit.Kilowatt)
             .WithConversion(t => t.Torque, TorqueUnit.NewtonMeter)
             .Build();
@@ -292,16 +310,22 @@ public class AsDynamicProxies
 
         Assert.Multiple(() =>
         {
-            CollectionAssert.AreEquivalent(metadata, collectionMetadata);
+            Assert.That(collectionMetadata, Is.EquivalentTo(metadata));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Horsepower))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(PowerUnit.Kilowatt).And
-                .ItemAt(nameof(DynoData.Horsepower)).Property(nameof(DisplayMeasurementMetadata.DisplayName)).EqualTo("Engine Horsepower"));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(PowerUnit.Kilowatt).And
+                .ItemAt(nameof(DynoData.Horsepower)).Property(nameof(DisplayMeasurementMetadata
+                    .DisplayName)).EqualTo("Engine Horsepower"));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Torque))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(TorqueUnit.NewtonMeter).And
-                .ItemAt(nameof(DynoData.Torque)).Property(nameof(DisplayMeasurementMetadata.DisplayName)).EqualTo("Engine Torque"));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(TorqueUnit.NewtonMeter).And
+                .ItemAt(nameof(DynoData.Torque)).Property(nameof(DisplayMeasurementMetadata
+                    .DisplayName)).EqualTo("Engine Torque"));
             Assert.That(metadata, Has.ItemAt(nameof(DynoData.Rpm))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(RotationalSpeedUnit.RevolutionPerMinute).And
-                .ItemAt(nameof(DynoData.Rpm)).Property(nameof(DisplayMeasurementMetadata.DisplayName)).EqualTo("Engine Speed"));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(RotationalSpeedUnit.RevolutionPerMinute).And
+                .ItemAt(nameof(DynoData.Rpm)).Property(nameof(DisplayMeasurementMetadata
+                    .DisplayName)).EqualTo("Engine Speed"));
 
             Assert.That(obj.ConvertQuantity(d => d.Horsepower, to: PowerUnit.Kilowatt), Has
                 .Property(nameof(IQuantity.Value)).EqualTo(223.7).Within(0.01).And

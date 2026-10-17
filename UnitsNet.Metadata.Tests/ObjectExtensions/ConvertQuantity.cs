@@ -12,8 +12,6 @@ namespace UnitsNet.Metadata.Tests.ObjectExtensions;
 [TestFixture]
 public class ConvertQuantity
 {
-    public record ConvertQuantityTestData(double Value, double Converted, Enum Unit);
-
     public readonly static TestCaseData[] ConvertQuantityTestCases = new[]
     {
         new TestCaseData(
@@ -82,7 +80,7 @@ public class ConvertQuantity
     public void WithInterfaceMetadata()
     {
         var obj = new HardDrive() as IHardDrive;
-        
+
         obj.Capacity = 128;
         obj.FreeSpace = 64;
 
@@ -225,4 +223,6 @@ public class ConvertQuantity
                 .Property(nameof(IQuantity.Unit)).EqualTo(TorqueUnit.NewtonMeter));
         });
     }
+
+    public record ConvertQuantityTestData(double Value, double Converted, Enum Unit);
 }

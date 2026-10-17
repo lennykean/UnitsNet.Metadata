@@ -5,9 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace UnitsNet.Metadata.Utils;
 
-internal class EphemeralValueCache<TKey, TItem> where TItem : class?
+internal sealed class EphemeralValueCache<TKey, TItem> where TItem : class?
 {
-    private static readonly Lazy<EphemeralValueCache<TKey, TItem>> _lazyGlobalInstance = new(() => new());
+    private static readonly Lazy<EphemeralValueCache<TKey, TItem>> LazyGlobalInstance = new(() => new());
 
     private readonly ConcurrentDictionary<TKey, WeakReference<TItem>> _cache;
 
@@ -16,7 +16,7 @@ internal class EphemeralValueCache<TKey, TItem> where TItem : class?
         _cache = new(comparer ?? EqualityComparer<TKey>.Default);
     }
 
-    public static EphemeralValueCache<TKey, TItem> GlobalInstance => _lazyGlobalInstance.Value;
+    public static EphemeralValueCache<TKey, TItem> GlobalInstance => LazyGlobalInstance.Value;
 
     public bool TryGet(TKey key, [NotNullWhen(true)] out TItem? item)
     {
@@ -28,6 +28,7 @@ internal class EphemeralValueCache<TKey, TItem> where TItem : class?
             _cache.TryRemove(key, out _);
             return false;
         }
+
         return true;
     }
 
@@ -39,11 +40,15 @@ internal class EphemeralValueCache<TKey, TItem> where TItem : class?
             return new(item);
         });
         if (reference?.TryGetTarget(out var item) is true)
+        {
             return item;
+        }
 
         item = getter(key);
         if (item is not null)
+        {
             _cache.AddOrUpdate(key, _ => new(item), (_, _) => new(item));
+        }
 
         return item;
     }

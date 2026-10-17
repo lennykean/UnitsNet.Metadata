@@ -10,14 +10,18 @@ public class Box
 
     [Quantity(LengthUnit.Meter)]
     public virtual double Width { get; set; }
+
     [Quantity(LengthUnit.Meter)]
     public virtual double Height { get; set; }
+
     [Quantity(LengthUnit.Meter)]
     public virtual double Depth { get; set; }
+
     [Quantity(MassUnit.Kilogram)]
     [AllowUnitConversion(MassUnit.Gram)]
     [AllowUnitConversion(MassUnit.Pound)]
     public virtual double Weight { get; set; }
+
     [Quantity(ScalarUnit.Amount)]
     public virtual int Items { get; set; }
 

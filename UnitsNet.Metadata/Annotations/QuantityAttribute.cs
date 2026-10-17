@@ -6,6 +6,9 @@ using System.Reflection;
 
 namespace UnitsNet.Metadata.Annotations;
 
+/// <summary>
+/// Marks a property with the unit its value is expressed in.
+/// </summary>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class QuantityAttribute : Attribute, IMetadataAttribute<QuantityAttribute, QuantityMetadata>
 {
@@ -14,6 +17,11 @@ public class QuantityAttribute : Attribute, IMetadataAttribute<QuantityAttribute
     private readonly Lazy<UnitInfo?> _lazyUnitInfo;
     private readonly Lazy<QuantityInfo?> _lazyQuantityInfo;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="QuantityAttribute"/> class.
+    /// </summary>
+    /// <param name="unit">The unit enum value of the property</param>
+    /// <param name="quantityType">The quantity type, or <see langword="null"/> to infer it from the unit</param>
     public QuantityAttribute(object unit, Type? quantityType = null)
     {
         _lazyUnit = new(() =>
@@ -23,39 +31,68 @@ public class QuantityAttribute : Attribute, IMetadataAttribute<QuantityAttribute
         _lazyUnitInfo = new(() =>
         {
             if (Unit?.TryGetUnitInfo(quantityType, out var unitInfo) is not true)
+            {
                 return default;
+            }
 
             return unitInfo;
         });
         _lazyQuantityInfo = new(() =>
         {
             if (Unit?.TryGetQuantityInfo(quantityType, out var quantityInfo) is not true)
+            {
                 return default;
+            }
 
             return quantityInfo!;
         });
         _lazyQuantityType = new(() =>
         {
             if (quantityType is not null)
+            {
                 return quantityType;
+            }
 
             if (Unit?.TryGetQuantityInfo(quantityType, out var quantityInfo) is not true)
+            {
                 return default;
+            }
 
             return quantityInfo?.ValueType;
         });
     }
 
+    /// <summary>
+    /// Gets the unit of the property.
+    /// </summary>
     public Enum? Unit => _lazyUnit.Value;
 
+    /// <summary>
+    /// Gets the quantity type of the property.
+    /// </summary>
     public Type? QuantityType => _lazyQuantityType?.Value;
+    /// <summary>
+    /// Gets the UnitsNet information of the property's quantity.
+    /// </summary>
     public QuantityInfo? QuantityInfo => _lazyQuantityInfo?.Value;
+    /// <summary>
+    /// Gets the UnitsNet information of the property's unit.
+    /// </summary>
     public UnitInfo? UnitInfo => _lazyUnitInfo?.Value;
 
-    public IEnumerable<UnitMetadataBasic> BuildAllowedConversionsMetadata(IEnumerable<AllowUnitConversionAttribute> allowedConversions, CultureInfo? culture = null)
+    /// <summary>
+    /// Builds the metadata of the units the property can be converted to.
+    /// </summary>
+    /// <param name="allowedConversions">The conversions allowed on the property</param>
+    /// <param name="culture">The culture of the unit abbreviations</param>
+    public IEnumerable<UnitMetadataBasic> BuildAllowedConversionsMetadata(
+        IEnumerable<AllowUnitConversionAttribute> allowedConversions,
+        CultureInfo? culture = null)
     {
         if (UnitInfo is null || QuantityInfo is null)
+        {
             yield break;
+        }
 
         var selfConversion = UnitMetadataBasic.FromUnitInfo(UnitInfo, QuantityInfo, culture)!;
 
@@ -94,37 +131,63 @@ public class QuantityAttribute : Attribute, IMetadataAttribute<QuantityAttribute
         }
     }
 
+    /// <summary>
+    /// Validates that the attribute holds a known unit.
+    /// </summary>
     public virtual void Validate()
     {
         if (Unit is null)
+        {
             throw new ArgumentException($"{nameof(Unit)} must be an enum value");
+        }
+
         if (!Unit.TryGetUnitInfo(QuantityType, out _))
+        {
             throw new ArgumentException($"{Unit?.GetType()}.{Unit} is not a known unit value.");
+        }
+
         if (!Unit.TryGetQuantityInfo(QuantityType, out _))
+        {
             throw new ArgumentException($"{Unit?.GetType()} is not a known unit type.");
+        }
     }
 
-    QuantityMetadata IMetadataAttribute<QuantityAttribute, QuantityMetadata>.ToMetadata(PropertyInfo property, IEnumerable<UnitMetadataBasic> conversions, UnitMetadata? overrideUnit, CultureInfo? culture)
+    QuantityMetadata IMetadataAttribute<QuantityAttribute, QuantityMetadata>.ToMetadata(
+        PropertyInfo property,
+        IEnumerable<UnitMetadataBasic> conversions,
+        UnitMetadata? overrideUnit,
+        CultureInfo? culture)
     {
         var unit = overrideUnit;
         if (unit is null && UnitInfo is not null && QuantityInfo is not null)
+        {
             unit = UnitMetadata.FromUnitInfo(UnitInfo, QuantityInfo, culture);
+        }
 
         return new(property, unit, conversions.ToList());
     }
 
-    private (UnitInfo unitInfo, QuantityInfo quantityInfo) GetConversionInfo(AllowUnitConversionAttribute allowedConversion)
+    private (UnitInfo unitInfo, QuantityInfo quantityInfo) GetConversionInfo(
+        AllowUnitConversionAttribute allowedConversion)
     {
         var unitInfo = allowedConversion.UnitInfo;
         var quantityInfo = allowedConversion.QuantityInfo;
 
         if (unitInfo is not null && quantityInfo is not null)
+        {
             return (unitInfo, quantityInfo);
+        }
 
         if (quantityInfo is null && QuantityInfo?.UnitInfos.Any(u => u.Value.Equals(Unit)) == true)
+        {
             quantityInfo = QuantityInfo;
-        if (quantityInfo is null || unitInfo is null && Unit?.TryGetUnitInfo(quantityInfo.ValueType, out unitInfo) is not true)
+        }
+
+        if (quantityInfo is null ||
+            unitInfo is null && Unit?.TryGetUnitInfo(quantityInfo.ValueType, out unitInfo) is not true)
+        {
             return default;
+        }
 
         return (unitInfo!, quantityInfo);
     }

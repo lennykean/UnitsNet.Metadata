@@ -1,13 +1,8 @@
 using System;
+using System.Globalization;
 using System.Linq;
 
 namespace UnitsNet.Metadata.Tests.TestData;
-
-public enum CoolnessUnit
-{
-    Fonzie,
-    MegaFonzie
-}
 
 public readonly struct Coolness : IQuantity
 {
@@ -27,8 +22,14 @@ public readonly struct Coolness : IQuantity
             Zero,
             BaseDimensions.Dimensionless);
 
-        UnitConverter.Default.SetConversionFunction<Coolness>(CoolnessUnit.Fonzie, CoolnessUnit.MegaFonzie, c => new(c.Value / 1_000_000, CoolnessUnit.MegaFonzie));
-        UnitConverter.Default.SetConversionFunction<Coolness>(CoolnessUnit.MegaFonzie, CoolnessUnit.Fonzie, c => new(c.Value * 1_000_000, CoolnessUnit.Fonzie));
+        UnitConverter.Default.SetConversionFunction<Coolness>(
+            CoolnessUnit.Fonzie,
+            CoolnessUnit.MegaFonzie,
+            c => new(c.Value / 1_000_000, CoolnessUnit.MegaFonzie));
+        UnitConverter.Default.SetConversionFunction<Coolness>(
+            CoolnessUnit.MegaFonzie,
+            CoolnessUnit.Fonzie,
+            c => new(c.Value * 1_000_000, CoolnessUnit.Fonzie));
         UnitAbbreviationsCache.Default.MapUnitToDefaultAbbreviation(CoolnessUnit.Fonzie, "Fz");
         UnitAbbreviationsCache.Default.MapUnitToDefaultAbbreviation(CoolnessUnit.MegaFonzie, "mFz");
     }
@@ -56,11 +57,13 @@ public readonly struct Coolness : IQuantity
 
     public double Value { get; }
 
-    public readonly double As(Enum unit) => UnitConverter.Default.GetConversionFunction<Coolness>(Unit, unit).Invoke(this).Value;
+    public readonly double As(Enum unit)
+        => UnitConverter.Default.GetConversionFunction<Coolness>(Unit, unit).Invoke(this).Value;
 
     public readonly string ToString(IFormatProvider? provider)
     {
-        var unitAbbriviations = UnitAbbreviationsCache.Default.GetUnitAbbreviations(typeof(Coolness), Convert.ToInt32(Unit), provider);
+        var unitAbbriviations = UnitAbbreviationsCache.Default
+            .GetUnitAbbreviations(typeof(Coolness), Convert.ToInt32(Unit, CultureInfo.InvariantCulture), provider);
 
         return $"{Value} {unitAbbriviations.FirstOrDefault()}";
     }
@@ -73,7 +76,9 @@ public readonly struct Coolness : IQuantity
     public readonly IQuantity ToUnit(Enum unit)
     {
         if (unit is not CoolnessUnit coolness)
+        {
             throw new ArgumentException($"Unit must be of type {typeof(CoolnessUnit)}.", nameof(unit));
+        }
 
         return new Coolness(As(unit), coolness);
     }

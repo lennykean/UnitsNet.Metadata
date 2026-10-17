@@ -30,11 +30,14 @@ public class FluentMetadata
         Assert.Multiple(() =>
         {
             Assert.That(metadata, Has.ItemAt(nameof(Cylinder.Radius))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter));
             Assert.That(metadata, Has.ItemAt(nameof(Cylinder.Height))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter));
             Assert.That(metadata, Has.ItemAt(nameof(Cylinder.Volume))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicMeter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicMeter));
 
             Assert.That(metadataProvider.GetQuantity(obj, c => c.Radius), Has
                 .Property(nameof(IQuantity.Value)).EqualTo(0.1).Within(0.01).And
@@ -75,13 +78,16 @@ public class FluentMetadata
         Assert.Multiple(() =>
         {
             Assert.That(metadata, Has.ItemAt(nameof(Cylinder.Radius))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter).And
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter).And
                 .ItemAt(nameof(Cylinder.Radius)).Property(nameof(QuantityMetadata.Conversions)).Count.EqualTo(3));
             Assert.That(metadata, Has.ItemAt(nameof(Cylinder.Height))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter).And
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Meter).And
                 .ItemAt(nameof(Cylinder.Radius)).Property(nameof(QuantityMetadata.Conversions)).Count.EqualTo(3));
             Assert.That(metadata, Has.ItemAt(nameof(Cylinder.Volume))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicMeter).And
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicMeter).And
                 .ItemAt(nameof(Cylinder.Radius)).Property(nameof(QuantityMetadata.Conversions)).Count.EqualTo(3));
 
             Assert.That(metadataProvider.GetQuantity(obj, c => c.Radius), Has
@@ -117,11 +123,14 @@ public class FluentMetadata
         Assert.Multiple(() =>
         {
             Assert.That(metadata, Has.ItemAt(nameof(Torus.MinorRadius))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Millimeter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Millimeter));
             Assert.That(metadata, Has.ItemAt(nameof(Torus.MajorRadius))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Millimeter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(LengthUnit.Millimeter));
             Assert.That(metadata, Has.ItemAt(nameof(Torus.Volume))
-                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicMillimeter));
+                .Property(nameof(QuantityMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(VolumeUnit.CubicMillimeter));
 
             Assert.That(obj.GetQuantity(t => t.MinorRadius), Has
                 .Property(nameof(IQuantity.Value)).EqualTo(5).Within(0.01).And
@@ -154,8 +163,10 @@ public class FluentMetadata
         Assert.Multiple(() =>
         {
             Assert.That(metadata, Has.ItemAt(nameof(Chips.Size))
-                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata.UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(MassUnit.Ounce).And
-                .ItemAt(nameof(Chips.Size)).Property(nameof(DisplayMeasurementMetadata.DisplayName)).EqualTo("Net Weight"));
+                .Property(nameof(DisplayMeasurementMetadata.Unit)).Property(nameof(UnitMetadata
+                    .UnitInfo)).Property(nameof(UnitInfo.Value)).EqualTo(MassUnit.Ounce).And
+                .ItemAt(nameof(Chips.Size)).Property(nameof(DisplayMeasurementMetadata
+                    .DisplayName)).EqualTo("Net Weight"));
 
             Assert.That(metadataProvider.GetQuantity(obj, c => c.Size), Has
                 .Property(nameof(IQuantity.Value)).EqualTo(14.5).Within(0.01).And

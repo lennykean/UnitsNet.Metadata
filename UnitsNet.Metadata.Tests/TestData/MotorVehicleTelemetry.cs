@@ -1,6 +1,5 @@
-﻿namespace UnitsNet.Metadata.Tests.TestData
+﻿namespace UnitsNet.Metadata.Tests.TestData;
+
+public class MotorVehicleTelemetry : VehicleTelemetry
 {
-    public class MotorVehicleTelemetry : VehicleTelemetry
-    {
-    }
 }

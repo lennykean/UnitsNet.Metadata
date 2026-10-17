@@ -1,111 +1,81 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
-
-using Humanizer;
 
 using UnitsNet.Metadata.Reflection;
 using UnitsNet.Metadata.Utils;
 
 namespace UnitsNet.Metadata;
 
-[EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class UnitMetadataBase
+/// <summary>
+/// The metadata of a unit that can convert values to other units.
+/// </summary>
+public sealed class UnitMetadata : UnitMetadataBase
 {
-    private protected UnitMetadataBase(UnitInfo unitInfo, string name, int value, string displayName, string abbriviation)
-    {
-        UnitInfo = unitInfo;
-        Name = name;
-        Value = value;
-        DisplayName = displayName;
-        Abbriviation = abbriviation;
-    }
-
-    [JsonIgnore, IgnoreDataMember]
-    public UnitInfo UnitInfo { get; }
-
-    public string Name { get; }
-    public int Value { get; }
-    public string DisplayName { get; }
-    public string Abbriviation { get; }
-
-    private protected static string GetDisplayName(UnitInfo unitInfo)
-    {
-        return unitInfo.PluralName.Humanize(LetterCasing.LowerCase);
-    }
-
-    private protected static string GetAbbriviation(UnitInfo unitInfo, QuantityInfo quantityInfo, CultureInfo? culture)
-    {
-        return UnitAbbreviationsCache.Default.GetUnitAbbreviations(quantityInfo.UnitType, Convert.ToInt32(unitInfo.Value), culture).FirstOrDefault() ?? "";
-    }
-
-    public override bool Equals(object? obj)
-    {
-        return obj is UnitMetadataBase other && UnitInfo.Value.Equals(other.UnitInfo.Value);
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(UnitInfo.Value);
-    }
-}
-
-public sealed class UnitMetadataBasic : UnitMetadataBase
-{
-    public UnitMetadataBasic(UnitInfo unitInfo, string name, int value, string displayName, string abbriviation, QuantityTypeMetadataBasic quantityType)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UnitMetadata"/> class.
+    /// </summary>
+    /// <param name="unitInfo">The UnitsNet unit information</param>
+    /// <param name="name">The unit name</param>
+    /// <param name="value">The numeric value of the unit enumeration</param>
+    /// <param name="displayName">The human-readable name of the unit</param>
+    /// <param name="abbriviation">The unit abbreviation</param>
+    /// <param name="quantityType">The metadata of the quantity the unit belongs to</param>
+    public UnitMetadata(
+        UnitInfo unitInfo,
+        string name,
+        int value,
+        string displayName,
+        string abbriviation,
+        QuantityTypeMetadata quantityType)
         : base(unitInfo, name, value, displayName, abbriviation)
     {
         QuantityType = quantityType;
     }
 
-    public QuantityTypeMetadataBasic QuantityType { get; }
+    /// <summary>
+    /// Gets the metadata of the quantity the unit belongs to.
+    /// </summary>
+    public QuantityTypeMetadata QuantityType { get; }
 
-    public static UnitMetadataBasic? FromUnitInfo(UnitInfo unitInfo, QuantityInfo quantityInfo, CultureInfo? culture = null)
+    /// <summary>
+    /// Gets the metadata of a unit.
+    /// </summary>
+    /// <param name="unitInfo">The unit to describe</param>
+    /// <param name="quantityInfo">The quantity the unit belongs to</param>
+    /// <param name="culture">The culture of the unit abbreviations</param>
+    public static UnitMetadata FromUnitInfo(UnitInfo unitInfo, QuantityInfo quantityInfo, CultureInfo? culture = null)
     {
-        return EphemeralValueCache<Enum, UnitMetadataBasic?>.GlobalInstance.GetOrAdd(unitInfo.Value, _ =>
+        return EphemeralValueCache<Enum, UnitMetadata>.GlobalInstance.GetOrAdd(unitInfo.Value, _ =>
         {
-            return QuantityTypeMetadataBasic.FromQuantityInfo(quantityInfo) switch
-            {
-                var quantityType when quantityType is not null
-                    => new(unitInfo, unitInfo.Name, Convert.ToInt32(unitInfo.Value), GetDisplayName(unitInfo), GetAbbriviation(unitInfo, quantityInfo, culture), quantityType),
-                _
-                    => null
-            };
+            var quantityType = QuantityTypeMetadata.FromQuantityInfo(quantityInfo, culture);
+            return new(
+                unitInfo,
+                unitInfo.Name,
+                Convert.ToInt32(unitInfo.Value),
+                GetDisplayName(unitInfo),
+                GetAbbriviation(unitInfo, quantityInfo, culture),
+                quantityType);
         });
     }
 
-    public override bool Equals(object? obj)
-    {
-        return obj is UnitMetadataBasic other && UnitInfo.Value.Equals(other.UnitInfo.Value);
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(UnitInfo.Value);
-    }
-}
-
-public sealed class UnitMetadata : UnitMetadataBase
-{
-    public UnitMetadata(UnitInfo unitInfo, string name, int value, string displayName, string abbriviation, QuantityTypeMetadata quantityType)
-        : base(unitInfo, name, value, displayName, abbriviation)
-    {
-        QuantityType = quantityType;
-    }
-
-    public QuantityTypeMetadata QuantityType { get; }
-
+    /// <summary>
+    /// Tries to convert a value in this unit to another unit.
+    /// </summary>
+    /// <param name="value">The value in this unit</param>
+    /// <param name="to">The unit to convert to</param>
+    /// <param name="convertedQuantity">The converted quantity</param>
     public bool TryConvertQuantity(double value, UnitMetadata to, out IQuantity convertedQuantity)
     {
         convertedQuantity = value.AsQuantity(UnitInfo.Value, QuantityType.QuantityInfo.ValueType);
         if (UnitInfo.Value == to.UnitInfo.Value)
+        {
             return true;
+        }
 
-        var conversionFunctions = EphemeralKeyCache<UnitMetadata, ConcurrentDictionary<UnitMetadata, ConversionFunction>>.GlobalInstance.GetOrAdd(this, _ => new());
+        var conversionFunctions =
+            EphemeralKeyCache<UnitMetadata, ConcurrentDictionary<UnitMetadata, ConversionFunction>>.GlobalInstance
+                .GetOrAdd(this, _ => new());
         if (!conversionFunctions.TryGetValue(to, out var conversionFunction))
         {
             if (!UnitConverter.Default.TryGetConversionFunction(
@@ -116,7 +86,9 @@ public sealed class UnitMetadata : UnitMetadataBase
             {
                 var baseUnit = QuantityType.BaseUnit;
                 if (baseUnit is null || baseUnit != to.QuantityType.BaseUnit)
+                {
                     return false;
+                }
 
                 if (!UnitConverter.Default.TryGetConversionFunction(
                         QuantityType.QuantityInfo.ValueType,
@@ -127,6 +99,7 @@ public sealed class UnitMetadata : UnitMetadataBase
                 {
                     return false;
                 }
+
                 if (!UnitConverter.Default.TryGetConversionFunction(
                         baseUnit.QuantityType.QuantityInfo.ValueType,
                         baseUnit.UnitInfo.Value,
@@ -136,28 +109,24 @@ public sealed class UnitMetadata : UnitMetadataBase
                 {
                     return false;
                 }
+
                 conversionFunction = quantity => finalUnitConversionFunction(baseUnitConversionFunction(quantity));
             }
+
             conversionFunctions.AddOrUpdate(to, conversionFunction, (_, _) => conversionFunction);
         }
+
         convertedQuantity = conversionFunction.Invoke(convertedQuantity);
         return true;
     }
 
-    public static UnitMetadata FromUnitInfo(UnitInfo unitInfo, QuantityInfo quantityInfo, CultureInfo? culture = null)
-    {
-        return EphemeralValueCache<Enum, UnitMetadata>.GlobalInstance.GetOrAdd(unitInfo.Value, _ =>
-        {
-            var quantityType = QuantityTypeMetadata.FromQuantityInfo(quantityInfo, culture);
-            return new(unitInfo, unitInfo.Name, Convert.ToInt32(unitInfo.Value), GetDisplayName(unitInfo), GetAbbriviation(unitInfo, quantityInfo, culture), quantityType);
-        });
-    }
-
+    /// <inheritdoc />
     public override bool Equals(object? obj)
     {
         return obj is UnitMetadata other && UnitInfo.Value.Equals(other.UnitInfo.Value);
     }
 
+    /// <inheritdoc />
     public override int GetHashCode()
     {
         return HashCode.Combine(UnitInfo.Value);
