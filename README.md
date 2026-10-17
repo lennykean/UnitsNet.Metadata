@@ -1,7 +1,6 @@
 # UnitsNet.Metadata
 
-[![.github/workflows/build.yml](https://github.com/lennykean/UnitsNet.Metadata/actions/workflows/build.yml/badge.svg)](https://github.com/lennykean/UnitsNet.Metadata/actions/workflows/build.yml)
-[![.github/workflows/publish.yml](https://github.com/lennykean/UnitsNet.Metadata/actions/workflows/publish.yml/badge.svg)](https://github.com/lennykean/UnitsNet.Metadata/actions/workflows/publish.yml)
+[![CI](https://github.com/lennykean/UnitsNet.Metadata/actions/workflows/ci.yml/badge.svg)](https://github.com/lennykean/UnitsNet.Metadata/actions/workflows/ci.yml)
 [![UnitsNet.Metadata](https://img.shields.io/nuget/v/UnitsNet.Metadata.svg)](https://www.nuget.org/packages/UnitsNet.Metadata/)
 
 UnitsNet.Metadata extends [UnitsNet](https://github.com/angularsen/UnitsNet) with unit metadata for object properties. Declare the unit of each property with annotations, fluent syntax or dynamic proxies, then read, convert and set property values as quantities.
@@ -24,6 +23,14 @@ Install UnitsNet.Metadata through NuGet:
 ```sh
 dotnet add package UnitsNet.Metadata
 ```
+
+Each UnitsNet major version has its own package version line:
+
+| UnitsNet.Metadata | UnitsNet | Branch |
+|---|---|---|
+| 1.x | 4 | `unitsnet-v4` |
+| 2.x | 5 | `main`, `unitsnet-v5` |
+| 3.x preview | 6 preview | `unitsnet-v6` |
 
 ### Annotations
 
